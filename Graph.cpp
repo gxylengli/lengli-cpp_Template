@@ -396,7 +396,7 @@ signed main() {
   return 0;
 }
 
-//最大流
+//最大流:节点编号(1-n)
 
 struct MF {
   int h[N], e[M], ne[M], w[M], idx = 0;
@@ -461,6 +461,80 @@ struct MF {
     }
   }
 } mf;
+
+//最小费用最大流:节点编号(1-n)
+
+namespace dinic{
+	const int N=1e5+7,M=2e6+7;
+	const int INF=1e9;
+	int n,S,T;
+	int head[N],ver[M],nex[M],tot,cur[N];
+	int dist[N],edge[M],cost[M],maxflow,mincost;
+	bool vis[N];
+	
+	inline void add(int x,int y,int z,int c,bool o=1){
+		ver[tot]=y;
+		edge[tot]=z;
+		cost[tot]=c;
+		nex[tot]=head[x];
+		head[x]=tot++;
+		if(o) add(y,x,0,-c,0);
+	}
+	inline bool spfa(){
+		for(int i=1;i<=n;i++) dist[i]=INF;
+		memset(vis,0,sizeof vis);
+		queue<int> q;
+		q.push(S);
+		dist[S]=0,vis[S]=1;
+		while(q.size()){
+			auto x=q.front();
+			q.pop();
+			vis[x]=0;
+			for(int i=head[x];~i;i=nex[i]){
+				int y=ver[i];
+				int z=edge[i],c=cost[i];
+				if(dist[y]<=dist[x]+c or !z) continue;
+				dist[y]=dist[x]+c;
+				if(!vis[y]) q.push(y),vis[y]=1;
+			}
+		}
+		return dist[T]!=INF;
+	}
+	int dfs(int x,int flow=INF){
+		if(x==T) return flow;
+		int ans=0,k,i;
+		vis[x]=1;
+		for(int i=cur[x];~i and flow;i=nex[i]){
+			cur[x]=i;
+			int y=ver[i];
+			int z=edge[i],c=cost[i];
+			if(!z or (dist[y]!=dist[x]+c) or vis[y]) continue;
+			k=dfs(y,min(flow,z));
+			if(!k) dist[y]=INF;
+			edge[i]-=k;
+			edge[i^1]+=k;
+			ans+=k;
+			mincost+=k*c;
+			flow-=k;
+		}
+		vis[x]=0;
+		return ans;
+	}
+	inline void main(){
+		while(spfa()){
+			for(int i=1;i<=n;i++){
+				cur[i]=head[i];
+			}
+			int now;
+			while((now=dfs(S,INF))) maxflow+=now;
+		}
+	}
+	inline void init(int _n,int _S,int _T){
+		n=_n,S=_S,T=_T;
+		tot=0,maxflow=0,mincost=0;
+		memset(head,-1,sizeof head);
+	}
+}
 
 // Tarjan求点双连通分量V-DCC
 

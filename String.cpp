@@ -20,18 +20,20 @@ struct string_hash{
 //KMP
 
 vector<int> KMP(string a,string b){
+    int n=a.size(),m=b.size();
 	a="#"+a,b="#"+b;
 	vector<int> q;
-	for(int i=2,j=0;i<b.size();i++){
+    vector<int> ne(m+1,0);
+	for(int i=2,j=0;i<=m;i++){
 		while(j and b[j+1]!=b[i]) j=ne[j];
 		if(b[j+1]==b[i]) j++;
 		ne[i]=j;
 	}
-	for(int i=1,j=0;i<a.size();i++){
+	for(int i=1,j=0;i<=n;i++){
 		while(j and a[i]!=b[j+1]) j=ne[j];
 		if(a[i]==b[j+1]) j++;
-		q.push_back(j);
-		if(j==b.size()) j=ne[j];
+		q[i]=j;
+		if(j==m) j=ne[j];
 	}
 	return q;
 }

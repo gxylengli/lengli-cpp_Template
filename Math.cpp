@@ -96,72 +96,26 @@ int qmi(int a,int b)
 
 //矩阵快速幂
 
-int A[4][4]={
-    {0,1,0,0},
-    {1,1,1,0},
-    {0,0,1,1},
-    {0,0,0,1}
+int h=2;
+struct Matrix{
+    vector<vector<int>> a = vector<vector<int>>(h,vector<int>(h));
+    Matrix operator * (Matrix b){
+        Matrix res;
+        for(int i=0;i<h;i++)
+            for(int j=0;j<h;j++)
+                for(int k=0;k<h;k++) res.a[i][k]=(res.a[i][k]+(long long)a[i][j]*b.a[j][k])%M;
+        return res;
+    }
 };
-int B[4][4]={
-    {1,0,0,0},
-    {0,1,0,0},
-    {0,0,1,0},
-    {0,0,0,1}
-};
-int ini[4]={1,1,1,0};
-int res[4]={0,0,0,0};
-
-void mul(int (&a)[4][4],int (&b)[4][4])
-{
-    int C[4][4];
-    memset(C,0,sizeof C);
-    for(int i=0;i<4;i++)
-    {
-        for(int j=0;j<4;j++)
-        {
-            for(int k=0;k<4;k++)
-            {
-                C[i][j]=(C[i][j]+a[i][k]*b[k][j])%m;
-            }
-        }
+Matrix pow(Matrix a,long long b){
+    Matrix res;
+    for(int i=0;i<h;i++) res.a[i][i]=1;
+    while(b){
+        if(b&1) res=res*a;
+        a=a*a;
+        b>>=1; 
     }
-    memcpy(a,C,sizeof C);
-}
-
-void qmi(int b)
-{
-    while(b)
-    {
-        if(b&1) mul(B,A);
-        mul(A,A);
-        b>>=1;
-    }
-}
-
-signed main()
-{
-    fastio;
-    cin>>n>>m;
-    if(n<=2)
-    {
-        if(n==1) cout<<1%m;
-        else cout<<3%m;
-    }
-    else
-    {
-        qmi(n-1);
-        
-        for(int i=0;i<4;i++)
-        {
-            for(int j=0;j<4;j++)
-            {
-                 res[i]=(res[i]+ini[j]*B[j][i])%m;
-            }
-        }
- 
-        
-        cout<<(n*res[2]-res[3]+m)%m;
-    }
+    return res;
 }
 
 //线性基
