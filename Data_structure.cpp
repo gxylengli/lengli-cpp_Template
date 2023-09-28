@@ -44,13 +44,12 @@ struct DSU{
         return 1;
     }
     int size(int x){
-        return sz[x];
+        return sz[find(x)];
     }
 };
 
 //树状数组
-struct BIT
-{
+struct BIT{
 	int n=N-1;
 	int a[N];
 	int lowbit(int x){return x&-x;}
@@ -60,8 +59,7 @@ struct BIT
 		
 	};
 	
-	int sum(int x) 
-	{
+	int sum(int x){
 		LL res=0;
 		for(int i=x;i;i-=lowbit(i)) res+=a[i];
 		return res;

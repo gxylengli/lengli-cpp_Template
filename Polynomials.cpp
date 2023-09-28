@@ -150,3 +150,38 @@ signed main()
     
     return 0;
 }
+
+//FWT
+
+namespace FWT{//idx:0->(1<<n)
+	void FWT_OR(Mint *a,int op){
+		for(int i=1;i<(1<<n);i*=2){//op=1,-1
+			for(int p=i*2,j=0;j<(1<<n);j+=p){
+				for(int k=0;k<i;k++){
+					a[i+j+k]+=a[j+k]*op;
+				}
+			}
+		}
+	}
+	void FWT_AND(Mint *a,int op){//op=1,-1
+		for(int i=1;i<(1<<n);i*=2){
+			for(int p=i*2,j=0;j<(1<<n);j+=p){
+				for(int k=0;k<i;k++){
+					a[j+k]+=a[i+j+k]*op;
+				}
+			}
+		}
+	}
+	void FWT_XOR(Mint *a,int op){//op=1,inv(2)
+		for(int i=1;i<(1<<n);i*=2){
+			for(int p=i*2,j=0;j<(1<<n);j+=p){
+				for(int k=0;k<i;k++){
+					Mint x=a[j+k],y=a[i+j+k];
+					a[j+k]=(x+y)*op;
+					a[i+j+k]=(x-y)*op;
+					
+				}
+			}
+		}
+	}
+};

@@ -1,29 +1,23 @@
 //最短路dijkstra
 
-int dijkstra() {
-  memset(dist, 0x3f, sizeof dist);
-  dist[1] = 0;
-  priority_queue<PII, vector<PII>, greater<PII>> q;
-  q.push({0, 1});
-  while (q.size()) {
-    auto t = q.top();
-    q.pop();
-    int ver = t.y, dis = t.x;
-    if (st[ver]) continue;
-    st[ver] = true;
-    for (int i = h[ver]; i != -1; i = ne[i]) {
-      int j = e[i];
-      if (dist[j] > dist[ver] + w[i]) {
-        dist[j] = dist[ver] + w[i];
-        q.push({dist[j], j});
-      }
-    }
-  }
-
-  if (dist[n] == 0x3f3f3f3f)
-    return -1;
-  else
-    return dist[n];
+vector<int> dijkstra(int S){
+	vector<int> dist(n+1,-1);
+	vector<bool> st(n+1,0);
+	priority_queue<PII,vector<PII>,greater<PII>> q;
+	q.push({0,S});dist[S]=0;
+	while(q.size()){
+		auto t=q.top();
+		q.pop();
+		if(st[t.second]) continue;
+		st[t.second]=1;
+		for(auto x:eg[t.second]){
+			if(dist[x]==-1 or dist[x]>t.first+1){
+				dist[x]=t.first+1;
+				q.push({dist[x],x});
+			}
+		}
+	}
+	return dist;
 }
 
 //次短路dijkstra
