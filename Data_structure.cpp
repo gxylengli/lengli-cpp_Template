@@ -98,103 +98,95 @@ void assign(int l,int r,int v)//区间平推赋值
 
 //线段树
 
-#include <cstring>
-#include <iostream>
-#include <algorithm>
+struct Tag{//lazy tag
+	int add=0;
+	Tag(){};
+	void apply(Tag t){
+		add=(add+t.add)%26;
+	};
+};
 
-using namespace std;
+struct Info{//information
+	int ll[2]={-1,-1},rr[2]={-1,-1};
+	bool flag=1;
+	Info() {};
+	void apply(Tag t){
+		for(int i=0;i<2;i++){
+			if(~ll[i]) ll[i]=(ll[i]+t.add)%26;
+			if(~rr[i]) rr[i]=(rr[i]+t.add)%26;
+		}
+	};
+	friend Info operator + (const Info &a,const Info &b){
+		Info res;
+		res.flag=a.flag&b.flag;
+		res.ll[0]=a.ll[0],res.rr[0]=b.rr[0];
+		if(~a.ll[1]) res.ll[1]=a.ll[1];
+		else res.ll[1]=b.ll[0];
+		if(~b.rr[1]) res.rr[1]=b.rr[1];
+		else res.rr[1]=a.rr[0];
+		
+		if(a.rr[0]==b.ll[0]) res.flag=0;
+		if(~a.rr[1] and a.rr[1]==b.ll[0]) res.flag=0;
+		if(~b.ll[1] and b.ll[1]==a.rr[0]) res.flag=0; 
+		
+		return res;
+	};
+};
 
-typedef long long LL;
-const int N=100010;
-
-int n,m;
-int a[N];
-
-struct Node{
-    int l,r;
-    LL sum,add;
-}tr[N*4];
-
-void pushup(Node &u,Node &l,Node &r){
-    u.sum=l.sum+r.sum;
-}
-
-void pushup(int u){
-    pushup(tr[u],tr[u<<1],tr[u<<1|1]);
-}
-
-void pushdown(int u){
-    if(tr[u].add){
-        tr[u<<1].add+=tr[u].add,tr[u<<1].sum+=(LL)(tr[u<<1].r-tr[u<<1].l+1)*tr[u].add;
-        tr[u<<1|1].add+=tr[u].add,tr[u<<1|1].sum+=(LL)(tr[u<<1|1].r-tr[u<<1|1].l+1)*tr[u].add;
-        tr[u].add=0;
-    }
-}
-
-void build(int u,int l,int r){
-    if(l==r) tr[u]={l,r,a[l],0};
-    else{
-        tr[u]={l,r};
-        int mid=l+r>>1;
-        build(u<<1,l,mid);
-        build(u<<1|1,mid+1,r);
-        pushup(u);
-    }
-}
-
-void modify(int u,int l,int r,int d){
-    if(tr[u].l>=l and tr[u].r<=r) {
-        tr[u].add+=d;
-        tr[u].sum+=(LL)(tr[u].r-tr[u].l+1)*d;
-    }
-    else{
-        pushdown(u);
-        int mid=tr[u].l+tr[u].r>>1;
-        if(l<=mid) modify(u<<1,l,r,d);
-        if(r>mid) modify(u<<1|1,l,r,d);
-        pushup(u);
-    }
-}
-
-Node query(int u,int l,int r){
-    if(tr[u].l>=l and tr[u].r<=r) return tr[u];
-    else{
-        pushdown(u);
-        int mid=tr[u].l+tr[u].r>>1;
-        if(r<=mid) return query(u<<1,l,r);
-        else if(l>mid) return query(u<<1|1,l,r);
-        else{
-            Node left=query(u<<1,l,r);
-            Node right=query(u<<1|1,l,r);
-            Node res;
-            pushup(res,left,right);
-            return res;
-        }
-    }
-}
-
-int main()
-{
-    cin>>n>>m;
-    for(int i=1;i<=n;i++) cin>>a[i];
-    build(1,1,n);
-
-    char op[2];
-    int l,r,d;
-    while(m--)
-    {
-        cin>>op>>l>>r;
-        if(op[0]=='Q')
-        {
-            cout<<query(1,l,r).sum<<endl;
-        }
-        else
-        {
-            cin>>d;
-            modify(1,l,r,d);
-        }
-    }
-}
+struct Segment_tree{
+	Info info[N*4];
+	Tag tag[N*4];
+	
+	void pushup(int u){
+		info[u]=info[u<<1]+info[u<<1|1];
+	}
+	
+	void apply(int u,const Tag &t){
+		info[u].apply(t);
+		tag[u].apply(t);
+	}
+	
+	void pushdown(int u){
+		apply(u<<1,tag[u]);
+		apply(u<<1|1,tag[u]);
+		tag[u]=Tag();
+	}
+	
+	void build(int u,int l,int r){
+		tag[u]=Tag();
+		if(l==r) {//根据题目修改
+			info[u].flag=1;
+			info[u].ll[0]=info[u].rr[0]=a[l];
+			info[u].ll[1]=info[u].rr[1]=-1;
+		}else{
+			int mid=(l+r)>>1;
+			build(u<<1,l,mid);
+			build(u<<1|1,mid+1,r);
+			pushup(u);
+		}
+	}
+	
+	void modify(int u,int l,int r,int pl,int pr,const Tag &t){
+		if(l>=pl and r<=pr) {
+			apply(u,t);
+			return;
+		}
+		pushdown(u);
+		int mid=(l+r)>>1;
+		if(pl<=mid) modify(u<<1,l,mid,pl,pr,t);
+		if(pr>mid) modify(u<<1|1,mid+1,r,pl,pr,t);
+		pushup(u);
+	}
+	
+	Info query(int u,int l,int r,int pl,int pr){
+		if(l>=pl and r<=pr) return info[u];
+		pushdown(u);
+		int mid=(l+r)>>1;
+		if(pl>mid) return query(u<<1|1,mid+1,r,pl,pr);
+		else if(pr<=mid) return query(u<<1,l,mid,pl,pr);
+		else return query(u<<1,l,mid,pl,pr)+query(u<<1|1,mid+1,r,pl,pr);
+	}
+}tr;
 
 //fhq-treap(平衡树)
 

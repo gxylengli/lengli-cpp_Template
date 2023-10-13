@@ -150,75 +150,34 @@ int main() {
 
 //倍增LCA（最近公共祖先）
 
-#include <bits/stdc++.h>
-#define int long long
-
-using namespace std;
-const int N = 4e4 + 10, M = 2 * N;
-
-int n, m, root;
-int h[N], e[M], ne[M], idx;
-int dep[N];
-int fa[N][16];
-
-void add(int a, int b) { e[idx] = b, ne[idx] = h[a], h[a] = idx++; }
-
+vector<int> eg[N];
+int dep[N],fa[N][20];
+ 
 void dfs(int u, int f) {
-  for (int i = 1; i < 16; i++) {
-    fa[u][i] = fa[fa[u][i - 1]][i - 1];
-  }
-  for (int i = h[u]; ~i; i = ne[i]) {
-    int j = e[i];
-    if (j == f) continue;
-    fa[j][0] = u;
-    dep[j] = dep[u] + 1;
-    dfs(j, u);
-  }
+  	for (int i = 1; i < 20; i++) {
+    	fa[u][i] = fa[fa[u][i - 1]][i - 1];
+  	}
+  	for (auto j:eg[u]) {
+    	if (j == f) continue;
+    	fa[j][0] = u;
+    	dep[j] = dep[u] + 1;
+    	dfs(j, u);
+  	}
 }
-
+ 
 int lca(int a, int b) {
-  if (dep[a] < dep[b]) swap(a, b);
-  for (int i = 15; i >= 0; i--) {
-    if (dep[a] - (1 << i) >= dep[b]) a = fa[a][i];
-  }
-  if (a == b) return a;
-  for (int i = 15; i >= 0; i--) {
-    if (fa[a][i] != fa[b][i]) {
-      a = fa[a][i];
-      b = fa[b][i];
-    }
-  }
-  return fa[a][0];
-}
-
-signed main() {
-  ios::sync_with_stdio(0);
-  cin >> n;
-  memset(h, -1, sizeof h);
-  for (int i = 0; i < n; i++) {
-    int a, b;
-    cin >> a >> b;
-    if (!~b)
-      root = a;
-    else
-      add(a, b), add(b, a);
-  }
-  dep[root] = 0;
-  dfs(root, -1);
-
-  cin >> m;
-  while (m--) {
-    int a, b;
-    cin >> a >> b;
-    int res = lca(a, b);
-
-    if (res == a)
-      cout << 1 << endl;
-    else if (res == b)
-      cout << 2 << endl;
-    else
-      cout << 0 << endl;
-  }
+  	if (dep[a] < dep[b]) swap(a, b);
+  	for (int i = 19; i >= 0; i--) {
+    	if (dep[a] - (1 << i) >= dep[b]) a = fa[a][i];
+  	}
+  	if (a == b) return a;
+  	for (int i = 19; i >= 0; i--) {
+    	if (fa[a][i] != fa[b][i]) {
+      		a = fa[a][i];
+      		b = fa[b][i];
+    	}
+  	}
+  	return fa[a][0];
 }
 
 //树链剖分，修改路径，修改子树
