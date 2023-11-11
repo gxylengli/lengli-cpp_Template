@@ -23,76 +23,143 @@ int C(int x, int y) {
 }
 
 
+//中国剩余定理excrt
+namespace excrt{
+	constexpr long long safe_mod(long long x, long long m) {
+    x %= m;
+    if (x < 0) x += m;
+    return x;
+	}
+	std::pair<long long, long long> inv_gcd(long long a, long long b) {
+	    a = safe_mod(a, b);
+	    if (a == 0) return {b, 0};
+	    long long s = b, t = a;
+	    long long m0 = 0, m1 = 1;
+	
+	    while (t) {
+	        long long u = s / t;
+	        s -= t * u;
+	        m0 -= m1 * u;  
+	        auto tmp = s;
+	        s = t;
+	        t = tmp;
+	        tmp = m0;
+	        m0 = m1;
+	        m1 = tmp;
+	    }
+	    if (m0 < 0) m0 += b / s;
+	    return {s, m0};
+	}
+	pair<long long, long long> crt(const vector<long long>& r,const vector<long long>& m) {//a->val,m->mod
+	    assert(r.size() == m.size());
+	    int n = int(r.size());
+	    long long r0 = 0, m0 = 1;
+	    for (int i = 0; i < n; i++) {
+	        assert(1 <= m[i]);
+	        long long r1 = safe_mod(r[i], m[i]), m1 = m[i];
+	        if (m0 < m1) {
+	            std::swap(r0, r1);
+	            std::swap(m0, m1);
+	        }
+	        if (m0 % m1 == 0) {
+	            if (r0 % m1 != r1) return {0, 0};
+	            continue;
+	        }
+	        long long g, im;
+	        tie(g, im) = inv_gcd(m0, m1);
+	        long long u1 = (m1 / g);
+	        if ((r1 - r0) % g) return {0, 0};
+	        long long x = (r1 - r0) / g % u1 * im % u1;
+	        r0 += x * m0;
+	        m0 *= u1;  // -> lcm(m0, m1)
+	        if (r0 < 0) r0 += m0;
+	    }
+	    return {r0, m0};
+	}
+};
 
-//线性筛质数与欧拉筛
-#include <bits/stdc++.h>
-//#define int long long
-#define x first
-#define y second
-using namespace std;
+//线性筛质数
 
-typedef pair<int,int> PII;
-typedef long long LL;
-const int N=1010;
-
-int n;
-int prime[N],st[N],cnt;
-int phi[N];
-
-void ola()
-{
-    phi[1]=1;
-    for(int i=2;i<=N;i++)
-    {
-        if(!st[i])
-        {
-            prime[cnt++]=i;
-            st[i]=true;
-            phi[i]=i-1;
-        }
-        for(int j=0;prime[j]*i<=N;j++)
-        {
-            st[prime[j]*i]=true;
-            if(i%prime[j]==0)
-            {
-                phi[i*prime[j]]=prime[j]*phi[i];
-                break;
-            }
-            phi[i*prime[j]]=(prime[j]-1)*phi[i];
-        }
-    }
+vector<int> init_prime(int n){
+	vector<int> prime,st(n+1,0);
+	for(int i=2;i<=n;i++){
+		if(!st[i]) prime.push_back(i);
+		for(int j=0;prime[j]*i<=n;j++){
+			st[i*prime[j]]=1;
+			if(i%prime[j]==0) break;
+		}
+	}
+	return prime;
 }
 
-signed main()
-{
-    //ios::sync_with_stdio(false);
-    int T;
-    cin>>T;
-    int t=1;
-    ola();
-    while(T--)
-    {
-        cin>>n;
-        LL res=0;
-        for(int i=1;i<=n;i++) res+=phi[i]*2;
-        cout<<t<<" "<<n<<" "<<res+1<<endl;
-        t++;
-    }
+//线性处理欧拉函数
+
+vector<int> init_phi(int n){
+	vector<int> prime,st(n+1,0);
+	vector<int> phi(n+1,0);
+	phi[1]=1;
+	for(int i=2;i<=n;i++){
+		if(!st[i]) prime.push_back(i),phi[i]=i-1;
+		for(int j=0;prime[j]*i<=n;j++){
+			st[i*prime[j]]=1;
+			if(i%prime[j]==0) {
+				phi[i*prime[j]]=phi[i]*prime[j];
+				break;
+			}
+			phi[i*prime[j]]=phi[i]*(prime[j]-1);
+		}
+	}
+	return phi;
 }
 
-//快速幂
+//欧拉降幂(欧拉定理)
 
-int qmi(int a,int b)
-{
-    int res=1;
-    while(b)
-    {
-        if(b&1) res=(res*a)%M;
-        a=(a*a)%M;
-        b>>=1;
-    }
-    return res;
-}
+struct ola_pow{
+	int P,phi;
+	void init(int p){
+		P=p,phi=Phi(p);
+	}
+	int Phi(int n){
+	    int res=n,m=n;
+	    for(int i=2;i<=sqrt(m);i++){
+	        if(m%i==0) res=res/i*(i-1);
+	        while(m%i==0) m/=i;
+	    }
+	    if(m>1) res=res/m*(m-1);
+	    return res;
+	}
+	int qmi(int a,int b,int p){//(a^b)%p
+		int res=1;
+		while(b){
+			if(b&1) res=res*a%p;
+			a=a*a%p;
+			b>>=1;
+		}
+		return res%p;
+	}
+	int ola(int a,int b,int c){//(a^(b^c))%P
+		bool flag=0;
+		int k=1,d=(c>=10 ? 10 : c);
+		for(int i=1;i<=d;i++) {
+			k*=b;
+			if(k>=phi) k%=phi,flag=1;
+		}
+		k*=qmi(b,c-d,phi);k%=phi;
+		if(flag) k+=phi;
+		return qmi(a%P,k,P);
+	}
+	int ola(int a,string s){//(a^s)%P
+		bool flag=0;
+		int res=0;
+		for(int i=0;i<s.size();i++){
+			int t=s[i]-'0';
+			res*=10,res+=t;
+			if(res>=phi) res%=phi,flag=1;
+		}
+		if(flag) res+=phi;
+		return qmi(a,res,P);
+	}
+};
 
 //矩阵快速幂
 
@@ -120,50 +187,60 @@ Matrix pow(Matrix a,long long b){
 
 //线性基
 
-#include <cstring>
-#include <iostream>
-#include <algorithm>
-#define int long long
-
-using namespace std;
-const int N=100010;
-
-int n;
-int a[N];
-int p[N];
-
-void add(int x)//获取线性基
-{
-    for(int i=62;i>=0;i--)
-    {
-        if(x>>i&1)
-        {
-            if(p[i])x^=p[i];
-            else
-            {
-                p[i]=x;
-                break;
-            }
-        }
-    }
-}
-
-signed main()
-{
-    cin>>n;
-    for(int i=0;i<n;i++) cin>>a[i];
-
-    int res=0;
-    for(int i=0;i<n;i++)
-    {
-        add(a[i]);
-    }
-    for(int i=62;i>=0;i--) 
-    {
-        if(p[i] and !(res>>i&1)) res^=p[i];
-    }
-    cout<<res;
-}
+struct Linear_basis{
+	#define int long long
+	vector<int> p;
+	vector<int> b;
+	int cnt=0;
+	bool flag=0;//have zero ? 1 : 0
+	void insert(int x){
+		for(int i=62;i>=0;i--){
+			if(x>>i&1){
+				if(!p[i]){
+					p[i]=x;
+					return;
+				}else x^=p[i];
+			}
+		}
+		flag=1;
+	}
+	void init(vector<int> &a){
+		p.clear();p.resize(63,0);
+		flag=0;cnt=0;b.clear();
+		for(auto x:a) insert(x);
+		for(int i=0;i<=62;i++){
+			for(int j=i-1;j>=0;j--)
+				if(p[i]>>j&1) p[i]^=p[j];
+			if(p[i]) cnt++,b.push_back(p[i]);
+		}
+	}
+	int query_mi(){
+		if(!flag) return 0;
+		for(int i=0;i<=62;i++) 
+			if(p[i]) return p[i];
+	}
+	int query_ma(){
+		int res=0;
+		for(int i=62;i>=0;i--)
+			res=max(res,res^p[i]);
+		return res;
+	}
+	int query(int k){//k>=1
+		int res=0;
+		k-=flag;
+		if(!k) return 0;
+		if(k>=(1ll<<cnt)) return -1;
+		for(int i=0;i<cnt;i++)
+			if(k>>i&1) res^=b[i];
+		return res;
+	}
+	int query_rk(int x){
+		int res=0;
+		for(int i=cnt-1;i>=0;i--)
+			if(x>=b[i]) res+=(1ll<<i),x^=b[i];
+		return res+flag;
+	}
+}lb;
 
 
 //超大质因数分解
@@ -265,7 +342,7 @@ signed main()
 }
 
 //扩展欧几里得(ax+by==gcd(a,b))
-namespace Exgcd{
+namespace Exgcd{//通解x=x0+b/d,y=y0-a/d
 	i128 x,y,a,b,d;
 	#define chmax(a,b) (a>b ? a:b)
 	#define chmin(a,b) (a>b ? b:a)

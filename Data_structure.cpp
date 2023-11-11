@@ -96,7 +96,7 @@ void assign(int l,int r,int v)//区间平推赋值
 	s.insert(Node(l,r,v));
 }
 
-//线段树
+//线段树：//根据题目修改build函数与Tag、Info对应apply函数
 
 struct Tag{//lazy tag
 	int add=0;
@@ -154,7 +154,7 @@ struct Segment_tree{
 	
 	void build(int u,int l,int r){
 		tag[u]=Tag();
-		if(l==r) {//根据题目修改
+		if(l==r) {
 			info[u].flag=1;
 			info[u].ll[0]=info[u].rr[0]=a[l];
 			info[u].ll[1]=info[u].rr[1]=-1;
@@ -185,6 +185,72 @@ struct Segment_tree{
 		if(pl>mid) return query(u<<1|1,mid+1,r,pl,pr);
 		else if(pr<=mid) return query(u<<1,l,mid,pl,pr);
 		else return query(u<<1,l,mid,pl,pr)+query(u<<1|1,mid+1,r,pl,pr);
+	}
+}tr;
+
+//动态开点版本线段树
+
+struct Segment_tree{
+	vector<Info> info;
+	vector<Tag> tag;
+	vector<int> ls,rs;
+	int idx=-1,root;
+	
+	int getnode(int l,int r,int v){
+		idx++;
+		info.push_back(Info(v));
+		ls.push_back(-1),rs.push_back(-1);
+		tag.push_back(Tag());
+		return idx;
+	}
+	
+	void pushup(int u){
+		info[u]=info[ls[u]]+info[rs[u]];
+	}
+	
+	void apply(int u,int l,int r,const Tag &t){
+		info[u].apply(t,l,r);
+		tag[u].apply(t);
+	}
+	
+	void pushdown(int u,int l,int r){
+		if(ls[u]==-1){
+			int t=getnode(l,(l+r)/2,0);
+			ls[u]=t;
+		}
+		if(rs[u]==-1){
+			int t=getnode((l+r)/2+1,r,0);
+			rs[u]=t;
+		}
+		apply(ls[u],l,(l+r)/2,tag[u]);
+		apply(rs[u],(l+r)/2+1,r,tag[u]);
+		tag[u]=Tag();
+	}
+	
+	void modify(int u,int l,int r,int pl,int pr,const Tag &t){
+		if(l>=pl and r<=pr) {
+			apply(u,l,r,t);
+			return;
+		}
+		pushdown(u,l,r);
+		int mid=(l+r)>>1;
+		if(pl<=mid) modify(ls[u],l,mid,pl,pr,t);
+		if(pr>mid) modify(rs[u],mid+1,r,pl,pr,t);
+		pushup(u);
+	}
+	
+	void init(){
+		root=getnode(1,n,0);
+		for(int i=1;i<=n;i++) modify(0,1,n,i,i,Tag(a[i]));
+	}
+	
+	Info query(int u,int l,int r,int pl,int pr){
+		if(l>=pl and r<=pr) return info[u];
+		pushdown(u,l,r);
+		int mid=(l+r)>>1;
+		if(pl>mid) return query(rs[u],mid+1,r,pl,pr);
+		else if(pr<=mid) return query(ls[u],l,mid,pl,pr);
+		else return query(ls[u],l,mid,pl,pr)+query(rs[u],mid+1,r,pl,pr);
 	}
 }tr;
 
