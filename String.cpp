@@ -1,28 +1,34 @@
 //字符串哈希
 struct string_hash{
-	int b=13331, P=1e9+7, p[N], rh[N],h[N],len;
-	int inline get(int l, int r){
-	    return (h[r] - (LL)h[l - 1] * p[r - l + 1] % P + P) % P;
-	}
-	void inline build(int n,string s) {
-		p[0] = 1,len=n;
-	    for(int i = 1; i <= n; i++){
-	        p[i] = (LL)p[i - 1] * b % P;
-	        h[i] = ((LL)h[i - 1] * b + s[i-1]) % P;
-	    }
-	    for(int i=1;i<=n;i++) rh[i]=((LL)rh[i - 1] * b + s[n-i]) % P;
-	}
-	bool isprs(int l,int r){
-		return (h[r]-(LL)h[l-1]*p[r-l+1]%P+P)%P==(rh[len-l+1]-(LL)rh[len-r]*p[r-l+1]%P+P)%P;
-	}
-}a;
+    int b=13331, P=1000000007, p[N], rh[N],h[N],len;
+    vector<int> sd={163227661,217636919,290182597,386910137,515880193,1000000007};
+    int inline get(int l, int r){
+        return (h[r] - (LL)h[l - 1] * p[r - l + 1] % P + P) % P;
+    }
+    void inline get_sd(){
+        int len=sd.size();
+        int t=rand()%len;
+        P=sd[t];
+    }
+    void inline build(int n,string s) {
+        p[0] = 1,len=n;
+        for(int i = 1; i <= n; i++){
+            p[i] = (LL)p[i - 1] * b % P;
+            h[i] = ((LL)h[i - 1] * b + s[i-1]) % P;
+        }
+        for(int i=1;i<=n;i++) rh[i]=((LL)rh[i - 1] * b + s[n-i]) % P;
+    }
+    bool isprs(int l,int r){
+        return (h[r]-(LL)h[l-1]*p[r-l+1]%P+P)%P==(rh[len-l+1]-(LL)rh[len-r]*p[r-l+1]%P+P)%P;
+    }
+}tr;
 
 //KMP
 
 vector<int> KMP(string a,string b){
     int n=a.size(),m=b.size();
 	a="#"+a,b="#"+b;
-	vector<int> q;
+	vector<int> q(n+1,0);
     vector<int> ne(m+1,0);
 	for(int i=2,j=0;i<=m;i++){
 		while(j and b[j+1]!=b[i]) j=ne[j];

@@ -124,6 +124,24 @@ double PolygonArea(Point *p, int n)  //求逆时针构成的多边形（可不�
     ret += Cross(p[i] - p[1], p[i + 1] - p[1]);
   return ret / 2;
 }
+double Area(Point p0,Point p1,Point p2)//凸包上三点围成面积
+{
+        double area = 0 ;
+        area=p0.x*p1.y+p1.x*p2.y+p2.x*p0.y-p1.x*p0.y-p2.x*p1.y-p0.x*p2.y;
+        return area/2;
+}
+
+Point Center(Point *q,int n)//凸包重心
+{
+	double sum_x=0,sum_y=0,sum_area=0;
+	for(int i=3;i<=n;i++){
+		double area=Area(q[1],q[i-1],q[i]);
+		sum_area+=area;
+		sum_x+=(q[1].x + q[i-1].x + q[i].x)*area ;
+        sum_y+=(q[1].y + q[i-1].y + q[i].y)*area ;
+	}
+	return Point(sum_x/sum_area/3.0,sum_y/sum_area/3.0);
+}
 bool isPointInPolygon(Point p, Point *poly, int n)  //点在凸多边形内的判定
 {
   int wn = 0;

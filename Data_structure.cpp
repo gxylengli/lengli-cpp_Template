@@ -19,7 +19,7 @@ struct ST{
 
 //并查集
 
-struct DSU{
+struct DSU{//集合加减DSU
     std::vector<int> p, sz,add;
     DSU(int n): p(n), sz(n, 1),add(n,0){
         std::iota(p.begin(), p.end(), 0);
@@ -47,6 +47,30 @@ struct DSU{
         return sz[find(x)];
     }
 };
+
+struct DSU_Weight{//带权DSU
+	vector<int> p, dist;
+	DSU(int n): p(n), dist(n,0){
+		iota(p.begin(), p.end(), 0);
+	}
+	int find(int x){
+		if(p[x]!=x){
+			int u=p[x];
+			p[x]=find(p[x]);
+			dist[x]+=dist[u];
+		}
+		return p[x];
+	}
+	bool merge(int x, int y,int w){
+		int fx = find(x);
+		int fy = find(y);
+		if (fx == fy) return dist[x]==dist[y]+w;
+		p[fx] = fy;
+		dist[fx]=w+dist[y]-dist[x];
+		return 1;
+	}
+};
+
 
 //树状数组
 struct BIT{
@@ -99,36 +123,25 @@ void assign(int l,int r,int v)//区间平推赋值
 //线段树：//根据题目修改build函数与Tag、Info对应apply函数
 
 struct Tag{//lazy tag
-	int add=0;
-	Tag(){};
+	Mint add=0,mul=1;
+	Tag(Mint a=0,Mint b=1):add(a),mul(b) {};
 	void apply(Tag t){
-		add=(add+t.add)%26;
+		add=(add*t.mul+t.add);
+		mul=(mul*t.mul);
 	};
 };
 
 struct Info{//information
-	int ll[2]={-1,-1},rr[2]={-1,-1};
-	bool flag=1;
+	int l,r;
+	Mint sum;
 	Info() {};
 	void apply(Tag t){
-		for(int i=0;i<2;i++){
-			if(~ll[i]) ll[i]=(ll[i]+t.add)%26;
-			if(~rr[i]) rr[i]=(rr[i]+t.add)%26;
-		}
+		sum=sum*t.mul+(r-l+1)*t.add;
 	};
 	friend Info operator + (const Info &a,const Info &b){
 		Info res;
-		res.flag=a.flag&b.flag;
-		res.ll[0]=a.ll[0],res.rr[0]=b.rr[0];
-		if(~a.ll[1]) res.ll[1]=a.ll[1];
-		else res.ll[1]=b.ll[0];
-		if(~b.rr[1]) res.rr[1]=b.rr[1];
-		else res.rr[1]=a.rr[0];
-		
-		if(a.rr[0]==b.ll[0]) res.flag=0;
-		if(~a.rr[1] and a.rr[1]==b.ll[0]) res.flag=0;
-		if(~b.ll[1] and b.ll[1]==a.rr[0]) res.flag=0; 
-		
+		res.l=a.l,res.r=b.r;
+		res.sum=a.sum+b.sum;
 		return res;
 	};
 };
@@ -154,10 +167,10 @@ struct Segment_tree{
 	
 	void build(int u,int l,int r){
 		tag[u]=Tag();
+		info[u].l=l,info[u].r=r;
 		if(l==r) {
-			info[u].flag=1;
-			info[u].ll[0]=info[u].rr[0]=a[l];
-			info[u].ll[1]=info[u].rr[1]=-1;
+			info[u].l=l,info[u].r=r;
+			info[u].sum=a[l];
 		}else{
 			int mid=(l+r)>>1;
 			build(u<<1,l,mid);
@@ -253,6 +266,46 @@ struct Segment_tree{
 		else return query(ls[u],l,mid,pl,pr)+query(rs[u],mid+1,r,pl,pr);
 	}
 }tr;
+
+//可持久化线段树(Persistent Segment Tree)求区间小于等于k数量
+
+int root[N],idx;
+struct Node{
+	int ls,rs;
+	int v;
+}tr[N*20];
+
+int build(int l,int r){
+	int u=++idx;
+	tr[u]={-1,-1,0};
+	if(l==r) return u;
+	int mid=(l+r)/2;
+	tr[u].ls=build(l,mid);
+	tr[u].rs=build(mid+1,r);
+	return u;
+}
+
+int update(int p,int x,int c,int l,int r){
+	int u=++idx;
+	tr[u]=tr[p];
+	tr[u].v+=c;
+	if(l==r) return u;
+	int mid=(l+r)/2;
+	if(x<=mid) tr[u].ls=update(tr[u].ls,x,c,l,mid);
+	else tr[u].rs=update(tr[u].rs,x,c,mid+1,r);
+	return u;
+}
+
+int query(int p,int q,int k,int l,int r){
+	if(l==r) return tr[q].v-tr[p].v;
+	int mid=(l+r)/2;
+	if(k<=mid) return query(tr[p].ls,tr[q].ls,k,l,mid);
+	else {
+		int sum=tr[tr[q].ls].v-tr[tr[p].ls].v;
+		return sum+query(tr[p].rs,tr[q].rs,k,mid+1,r);
+	}
+	return 0;
+}
 
 //fhq-treap(平衡树)
 

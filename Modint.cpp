@@ -41,8 +41,8 @@ template <unsigned M_> struct ModInt {
   friend std::ostream &operator<<(std::ostream &os, const ModInt &a) { return os << a.x; }
   friend std::istream &operator>>(std::istream &is, ModInt &a) {int v;is >> v;a = ModInt(v);return is;}
 };
-constexpr unsigned M = 1000000007;
-using Mint = ModInt<M>;
+constexpr unsigned MO = 1000000007;
+using Mint = ModInt<MO>;
 
 
 

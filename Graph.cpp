@@ -3,22 +3,23 @@
 vector<int> dijkstra(int S){
 	vector<int> dist(n+1,-1);
 	vector<bool> st(n+1,0);
-	priority_queue<PII,vector<PII>,greater<PII>> q;
+	priority_queue<array<int,2>,vector<array<int,2>>,greater<array<int,2>>> q;
 	q.push({0,S});dist[S]=0;
 	while(q.size()){
 		auto t=q.top();
 		q.pop();
-		if(st[t.second]) continue;
-		st[t.second]=1;
-		for(auto x:eg[t.second]){
-			if(dist[x]==-1 or dist[x]>t.first+1){
-				dist[x]=t.first+1;
+		if(st[t[1]]) continue;
+		st[t[1]]=1;
+		for(auto x:eg[t[1]]){
+			if(dist[x]==-1 or dist[x]>t[0]+1){
+				dist[x]=t[0]+1;
 				q.push({dist[x],x});
 			}
 		}
 	}
 	return dist;
 }
+
 
 //次短路dijkstra
 
@@ -353,7 +354,8 @@ signed main() {
 
 struct MF {
   int h[N], e[M], ne[M], w[M], idx = 0;
-
+  int vis[N];
+  
   int n, S, T;
   LL maxflow = 0;
   int dep[N], cur[N];
@@ -412,6 +414,13 @@ struct MF {
       // memcpy(cur, h, sizeof h);
       maxflow += dfs(S, INF);
     }
+  }
+  void dfs(int u) {//找与源点同一侧的点
+	  vis[u] = 1;
+	  for (int i = h[u]; ~i; i = ne[i]) {
+	    int v = e[i];
+	    if (!vis[v] && w[i]) dfs(v);
+	  }
   }
 } mf;
 
@@ -489,9 +498,70 @@ namespace dinic{
 	}
 }
 
-// Tarjan求点双连通分量V-DCC
+// Tarjan求边双连通分量E_DCC
 
-struct Tarjan{
+struct E_DCC{
+	int n,cnt,cnt_edge;
+	int dfn[N], low[N];
+	vector<pair<int, int>> e[N];
+	vector<vector<int>> ans;
+	stack<int> st;
+	vector<array<int,2>> bridge;
+    int is_bridge[N];
+	
+	void init(int nn){
+		n=nn,cnt_edge=cnt=0;
+		st=stack<int>();
+		ans.clear();bridge.clear();
+		for(int i=1;i<=n;i++) {
+			e[i].clear();
+			dfn[i]=low[i]=0;
+			is_bridge[i]=0;
+		}
+	}
+	
+	void add(int u,int v){
+		cnt_edge++;
+		e[u].push_back(make_pair(v, cnt_edge<<1));
+		e[v].push_back(make_pair(u, cnt_edge<<1|1));
+	}
+	
+	void dfs(int x, int las){
+		low[x] = dfn[x] = ++cnt;
+		st.push(x);
+		for (auto i: e[x]){
+			if (i.second == (las ^ 1)) continue;
+			if (!dfn[i.first]){
+				dfs(i.first, i.second);
+				low[x] = min(low[x], low[i.first]);
+				if(low[i.first]>dfn[x]){
+                    bridge.push_back({x,i.first});
+                    is_bridge[x]=1;
+                    is_bridge[i.first]=1;
+                }
+			}else low[x] = min(low[x], dfn[i.first]);
+		}
+		if (dfn[x] == low[x]){
+			vector<int> vec;
+			vec.push_back(x);
+			while (st.top() != x){
+				vec.push_back(st.top());
+				st.pop();
+			}
+			st.pop();
+			ans.push_back(vec);
+		}
+	}
+	
+	void tarjan(){
+		for(int i=1;i<=n;i++) 
+			if(!dfn[i]) dfs(i,0);
+	}
+}tj;
+
+// Tarjan求点双连通分量V_DCC
+
+struct V_DCC{
     vector<int> eg[N];
     int dfn[N],low[N],timespace;
     int stk[N],top;
@@ -594,3 +664,125 @@ struct Tarjan{
     }
 }tj;
 
+
+//线段树优化建图区间连边
+struct segment_tree_graph{
+	int cnt=0;
+	int root_in,root_out;
+	int idx[N];//i点对应in_tree编号
+	int tr[N*20][2];
+	vector<PII> eg[N*20];
+	
+	PII build(int l,int r){
+		int rt_in=++cnt;
+		int rt_out=++cnt;
+		if(l==r){
+			if(l==s) S=rt_out;
+			idx[l]=rt_in;
+			eg[rt_out].pb(rt_in,0);
+			eg[rt_in].pb(rt_out,0);
+			return {rt_in,rt_out};
+		}
+		int mid=(l+r)/2;
+		auto t=build(l,mid);
+		tr[rt_in][0]=(t.first),tr[rt_out][0]=(t.second);
+		eg[rt_in].pb(t.first,0);
+		eg[t.second].pb(rt_out,0);
+		t=build(mid+1,r);
+		tr[rt_in][1]=(t.first),tr[rt_out][1]=(t.second);
+		eg[rt_in].pb(t.first,0);
+		eg[t.second].pb(rt_out,0);
+		root_in=rt_in,root_out=rt_out;
+		return {rt_in,rt_out};
+	}
+	
+	void add(int u,int l,int r,int pl,int pr,int x,int w,int flag){
+		if(l>=pl and r<=pr){
+			if(flag) eg[u].pb(x,0);
+			else eg[x].pb(u,w);
+			return;
+		}
+		int mid=(l+r)/2;
+		if(pl<=mid) add(tr[u][0],l,mid,pl,pr,x,w,flag);
+		if(pr>mid) add(tr[u][1],mid+1,r,pl,pr,x,w,flag);
+	}
+	
+	void modify(int l1,int r1,int l2,int r2,int w){
+		int nt=++cnt;
+		add(root_out,1,n,l1,r1,nt,w,1);
+		add(root_in,1,n,l2,r2,nt,w,0);
+	}
+	void clear(){
+		for(int i=0;i<=cnt;i++){
+			tr[i][0]=tr[i][1]=0;
+			idx[i]=0;
+			eg[i].clear();
+		}
+		cnt=0;
+	}
+}tr;
+
+//虚树dp
+
+struct virtual_tree{
+	vector<vector<int>> veg;
+	vector<int> f,st;
+	vector<int> stk;
+	int top;
+	void init(int n){
+		veg.resize(n+1);
+		f.resize(n+1,0);
+		st.resize(n+1,0);
+		top=0;
+	}
+	void clear(){
+		stk.clear();top=0;
+		function<void(int,int)> dclear=[&](int u,int la){
+			for(auto x:veg[u]) if(x!=la) dclear(x,u);
+			veg[u].clear();
+			f[u]=0;st[u]=0;
+		};
+		dclear(1,0);
+	}
+	void add_edge(int a,int b){
+		veg[a].push_back(b);
+	}
+	void build(vector<int> &q){
+		sort(all(q),[&](int u,int v){
+			return dfn[u]<dfn[v];
+		});
+		stk.push_back(0);
+		stk.push_back(1),top++;
+		for(auto x:q){
+			st[x]=1;
+			if(x==1) continue;
+			int t=lca(x,stk[top]);
+			if(t!=stk[top]){
+				while(dfn[t]<dfn[stk[top-1]]){
+					add_edge(stk[top-1],stk[top]);
+					top--;stk.pop_back();
+				}
+				if(dfn[t]>dfn[stk[top-1]]){
+					add_edge(t,stk[top]);
+					stk.pop_back();
+					stk.push_back(t);
+				}else{
+					add_edge(t,stk[top]);
+					top--;stk.pop_back();
+				}
+			}
+			top++;stk.push_back(x);
+		}
+		while(stk.size()>=2){
+			auto t=stk.back();
+			stk.pop_back();
+			if(stk.back()==0) break;
+			else add_edge(stk.back(),t);
+		}
+	}
+
+
+	int dp(int u,int la){
+
+	}
+}vtr;
