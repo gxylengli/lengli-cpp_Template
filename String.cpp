@@ -160,3 +160,39 @@ struct Trie {
     return res;
   }
 } tr;
+
+//Trie 指针版
+
+class Trie {
+private:
+    int end=0;
+    int ans=0;
+    Trie* ne[26];
+public:
+    Trie() {
+        end=0;
+        memset(ne,0,sizeof ne);
+    }
+    void insert(string word,int k) {
+        Trie* p = this;
+        int m=word.size();
+        for(auto c:word){
+            int t=c-'a';
+            if(p->ne[t]==nullptr) p->ne[t]=new Trie();
+            p=p->ne[t];
+            if(p->ans==0 or m<len[p->ans]) p->ans=k;
+        }
+        p->end=1;
+    }
+    int find(string word) {
+        Trie* p = this;
+        int res=-1;
+        for(auto c:word){
+            int t=c-'a';
+            if(p->ne[t]==nullptr) break;
+            p=p->ne[t];
+            res=p->ans;
+        }
+        return res;
+    }
+};
