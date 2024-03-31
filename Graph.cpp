@@ -151,35 +151,44 @@ int main() {
 
 //倍增LCA（最近公共祖先）
 
-vector<int> eg[N];
-int dep[N],fa[N][20];
- 
-void dfs(int u, int f) {
-  	for (int i = 1; i < 20; i++) {
-    	fa[u][i] = fa[fa[u][i - 1]][i - 1];
-  	}
-  	for (auto j:eg[u]) {
-    	if (j == f) continue;
-    	fa[j][0] = u;
-    	dep[j] = dep[u] + 1;
-    	dfs(j, u);
-  	}
-}
- 
-int lca(int a, int b) {
-  	if (dep[a] < dep[b]) swap(a, b);
-  	for (int i = 19; i >= 0; i--) {
-    	if (dep[a] - (1 << i) >= dep[b]) a = fa[a][i];
-  	}
-  	if (a == b) return a;
-  	for (int i = 19; i >= 0; i--) {
-    	if (fa[a][i] != fa[b][i]) {
-      		a = fa[a][i];
-      		b = fa[b][i];
-    	}
-  	}
-  	return fa[a][0];
-}
+struct LCA{
+    vector<int> dep;
+    vector<vector<int>> eg,fa;
+    int m;
+    void init(int n){
+        m=log(n)/log(2)+1;
+        eg.clear(),dep.clear(),fa.clear();
+        eg.resize(n+1),dep.resize(n+1,0);
+        fa.resize(n+1,vector<int> (m+1,0));
+    }
+    
+    void dfs(int u, int f) {
+        for (int i = 1; i <= m; i++) {
+            fa[u][i] = fa[fa[u][i - 1]][i - 1];
+        }
+        for (auto j:eg[u]) {
+            if (j == f) continue;
+            fa[j][0] = u;
+            dep[j] = dep[u] + 1;
+            dfs(j, u);
+        }
+    }
+    
+    int lca(int a, int b) {
+        if (dep[a] < dep[b]) swap(a, b);
+        for (int i = m; i >= 0; i--) {
+            if (dep[a] - (1 << i) >= dep[b]) a = fa[a][i];
+        }
+        if (a == b) return a;
+        for (int i = m; i >= 0; i--) {
+            if (fa[a][i] != fa[b][i]) {
+                a = fa[a][i];
+                b = fa[b][i];
+            }
+        }
+        return fa[a][0];
+    }
+}tr;
 
 //树链剖分，修改路径，修改子树
 #include <bits/stdc++.h>
