@@ -676,60 +676,86 @@ struct Tarjan{
 
 //线段树优化建图区间连边
 struct segment_tree_graph{
-	int cnt=0;
+	int cnt=0,cntin=0;
 	int root_in,root_out;
-	int idx[N];//i点对应in_tree编号
-	int tr[N*20][2];
-	vector<PII> eg[N*20];
-	
-	PII build(int l,int r){
-		int rt_in=++cnt;
-		int rt_out=++cnt;
-		if(l==r){
-			if(l==s) S=rt_out;
-			idx[l]=rt_in;
-			eg[rt_out].pb(rt_in,0);
-			eg[rt_in].pb(rt_out,0);
-			return {rt_in,rt_out};
-		}
-		int mid=(l+r)/2;
-		auto t=build(l,mid);
-		tr[rt_in][0]=(t.first),tr[rt_out][0]=(t.second);
-		eg[rt_in].pb(t.first,0);
-		eg[t.second].pb(rt_out,0);
-		t=build(mid+1,r);
-		tr[rt_in][1]=(t.first),tr[rt_out][1]=(t.second);
-		eg[rt_in].pb(t.first,0);
-		eg[t.second].pb(rt_out,0);
-		root_in=rt_in,root_out=rt_out;
-		return {rt_in,rt_out};
+	int in[N],out[N];
+    array<int,2> tr[N*10];
+	int h[N*10],e[N*20],ne[N*20],w[N*20],idx;
+    int rd[N*10],st[N*10];
+ 
+    bool is_init=0;
+ 
+    void add_edge(int a,int b,int c){
+        e[idx]=b,w[idx]=c,ne[idx]=h[a],h[a]=idx++;
+        rd[b]++;
+    }
+    void build_in_tree(int u,int l,int r){
+        if(l==r){
+            in[l]=u;
+            st[u]=1;
+            cnt=max(cnt,u);
+            return;
+        }
+        int mid=(l+r)/2;
+        build_in_tree(u*2,l,mid);
+        build_in_tree(u*2+1,mid+1,r);
+        tr[u]={u*2,u*2+1};
+        add_edge(u*2,u,0);
+        add_edge(u*2+1,u,0);
+    }
+    void build_out_tree(int u,int l,int r){
+        if(l==r){
+            out[l]=u;
+            return;
+        }
+        int mid=(l+r)/2;
+        int ls=++cnt,rs=++cnt;
+        build_out_tree(ls,l,mid);
+        build_out_tree(rs,mid+1,r);
+        tr[u]={ls,rs};
+        add_edge(u,ls,0);
+        add_edge(u,rs,0);
+    }
+	void build(int l,int r){
+        if(!is_init){
+            for(int i=0;i<N*10;i++) h[i]=-1;
+            is_init=1;
+        }
+        root_in=++cnt;
+		build_in_tree(root_in,l,r);
+        cntin=cnt,root_out=++cnt;
+        build_out_tree(root_out,l,r);
+        for(int i=1;i<=n;i++) add_edge(out[i],in[i],0),add_edge(in[i],out[i],0);
 	}
 	
-	void add(int u,int l,int r,int pl,int pr,int x,int w,int flag){
+	void link(int u,int l,int r,int pl,int pr,int x,int w,int flag){
 		if(l>=pl and r<=pr){
-			if(flag) eg[u].pb(x,0);
-			else eg[x].pb(u,w);
+			if(flag) add_edge(x,u,0);
+			else add_edge(u,x,w);
 			return;
 		}
 		int mid=(l+r)/2;
-		if(pl<=mid) add(tr[u][0],l,mid,pl,pr,x,w,flag);
-		if(pr>mid) add(tr[u][1],mid+1,r,pl,pr,x,w,flag);
+		if(pl<=mid) link(tr[u][0],l,mid,pl,pr,x,w,flag);
+		if(pr>mid) link(tr[u][1],mid+1,r,pl,pr,x,w,flag);
 	}
 	
 	void modify(int l1,int r1,int l2,int r2,int w){
 		int nt=++cnt;
-		add(root_out,1,n,l1,r1,nt,w,1);
-		add(root_in,1,n,l2,r2,nt,w,0);
+        link(root_in,1,n,l1,r1,nt,w,0);
+		link(root_out,1,n,l2,r2,nt,w,1);
+		
 	}
 	void clear(){
 		for(int i=0;i<=cnt;i++){
-			tr[i][0]=tr[i][1]=0;
-			idx[i]=0;
-			eg[i].clear();
+			tr[i]={0,0};
+			in[i]=out[i]=0;
+			h[i]=-1;
+            rd[i]=0,st[i]=0;
 		}
-		cnt=0;
+		idx=0,cnt=0;root_in=root_out=0;
 	}
 }tr;
+
 
 //虚树dp
 
