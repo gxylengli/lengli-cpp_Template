@@ -54,84 +54,70 @@ for(int i=2,l,r=0;i<s.size();i++){
 }
 
 //后缀数组（SA）
-#include <bits/stdc++.h>
-#define fastio ios::sync_with_stdio(0); cin.tie(0); cout.tie(0)
-#define endl '\n'
-//#define x first
-//#define y second
-
-using namespace std;
-typedef pair<int,int> PII;
-typedef long long LL;
-
-const int N=1000010;
-
-int n,m;
-string s;
-int sa[N], x[N], y[N], c[N], rk[N], height[N];
-
-void get_sa()
-{
-    for (int i = 1; i <= n; i ++ ) c[x[i] = s[i]] ++ ;
-    for (int i = 2; i <= m; i ++ ) c[i] += c[i - 1];
-    for (int i = n; i; i -- ) sa[c[x[i]] -- ] = i;
-    for (int k = 1; k <= n; k <<= 1)
-    {
-        int num = 0;
-        for (int i = n - k + 1; i <= n; i ++ ) y[ ++ num] = i;
-        for (int i = 1; i <= n; i ++ )
-            if (sa[i] > k)
-                y[ ++ num] = sa[i] - k;
-        for (int i = 1; i <= m; i ++ ) c[i] = 0;
-        for (int i = 1; i <= n; i ++ ) c[x[i]] ++ ;
-        for (int i = 2; i <= m; i ++ ) c[i] += c[i - 1];
-        for (int i = n; i; i -- ) sa[c[x[y[i]]] -- ] = y[i], y[i] = 0;
-        swap(x, y);
-        x[sa[1]] = 1, num = 1;
-        for (int i = 2; i <= n; i ++ )
-            x[sa[i]] = (y[sa[i]] == y[sa[i - 1]] && y[sa[i] + k] == y[sa[i - 1] + k]) ? num : ++ num;
-        if (num == n) break;
-        m = num;
+template<size_t size>
+struct SuffixArray {
+    bool t[size << 1];
+    int sa[size], ht[size], rk[size];//sa.idx:1~n,ht.idx:1~n,rk.idx:0~(n-1)
+ 
+    inline bool islms(const int i, const bool *t) { 
+        return i > 0 && t[i] && !t[i - 1]; 
     }
-}
-
-void get_height()
-{
-    for (int i = 1; i <= n; i ++ ) rk[sa[i]] = i;
-    for (int i = 1, k = 0; i <= n; i ++ )
-    {
-        if (rk[i] == 1) continue;
-        if (k) k -- ;
-        int j = sa[rk[i] - 1];
-        while (i + k <= n && j + k <= n && s[i + k] == s[j + k]) k ++ ;
-        height[rk[i]] = k;
+ 
+    template<class T>
+    inline void sort(T s, int *sa, const int len, const int sigma, const int sz, bool *t, int *b, int *cb, int *p) {
+        memset(b, 0, sizeof(int) * sigma);
+        memset(sa, -1, sizeof(int) * len);
+        for (int i = 0; i < len; i++) b[s[i]]++;
+        cb[0] = b[0];
+        for (int i = 1; i < sigma; i++) cb[i] = cb[i - 1] + b[i];
+        for (int i = sz - 1; i >= 0; i--) sa[--cb[s[p[i]]]] = p[i];
+        for (int i = 1; i < sigma; i++) cb[i] = cb[i - 1] + b[i - 1];
+        for (int i = 0; i < len; i++) if (sa[i] > 0 && !t[sa[i] - 1]) sa[cb[s[sa[i] - 1]]++] = sa[i] - 1;
+        cb[0] = b[0];
+        for (int i = 1; i < sigma; i++) cb[i] = cb[i - 1] + b[i];
+        for (int i = len - 1; i >= 0; i--) if (sa[i] > 0 && t[sa[i] - 1]) sa[--cb[s[sa[i] - 1]]] = sa[i] - 1;
     }
-}
+ 
+    //len要字符串长度+1!
+    template<class T>
+    inline void sais(T s, int *sa, const int len, bool *t, int *b, int *b1, const int sigma) {
+        int i, j, x, p = -1, cnt = 0, sz = 0, *cb = b + sigma;
+        for (t[len - 1] = 1, i = len - 2; i >= 0; i--) t[i] = s[i] < s[i + 1] || (s[i] == s[i + 1] && t[i + 1]);
+        for (i = 1; i < len; i++) if (t[i] && !t[i - 1]) b1[sz++] = i;
+        sort(s, sa, len, sigma, sz, t, b, cb, b1);
+        for (i = sz = 0; i < len; i++) if (islms(sa[i], t)) sa[sz++] = sa[i];
+        for (i = sz; i < len; i++) sa[i] = -1;
+        for (i = 0; i < sz; i++) {
+            for (x = sa[i], j = 0; j < len; j++) {
+                if (p == -1 || s[x + j] != s[p + j] || t[x + j] != t[p + j]) { cnt++, p = x; break; }
+                else if (j > 0 && (islms(x + j, t) || islms(p + j, t))) break;
+            }
+            sa[sz + (x >>= 1)] = cnt - 1;
+        }
+        for (i = j = len - 1; i >= sz; i--) if (sa[i] >= 0) sa[j--] = sa[i];
+        int *s1 = sa + len - sz, *b2 = b1 + sz;
+        if (cnt < sz) sais(s1, sa, sz, t + len, b, b1 + sz, cnt);
+        else for (i = 0; i < sz; i++) sa[s1[i]] = i;
+        for (i = 0; i < sz; i++) b2[i] = b1[sa[i]];
+        sort(s, sa, len, sigma, sz, t, b, cb, b2);
+    }
+ 
+    template<class T>
+    inline void getHeight(T s, int n) {//字符串与字符串长度下标0~(n-1),height数组下标1~n
+        for (int i = 1; i <= n; i++) rk[sa[i]] = i;
+        int j = 0, k = 0;
+        for (int i = 0; i < n; ht[rk[i++]] = k)
+            for (k ? k-- : 0, j = sa[rk[i] - 1]; s[i + k] == s[j + k]; k++);
+    }
+ 
+    template<class T>
+    inline void init(T s, const int len, const int sigma) {
+        sais(s, sa, len, t, rk, ht, sigma), rk[0] = 0;
+    }
+};
+ 
+SuffixArray<N> SA;
 
-
-void solve()
-{
-	cin>>s;
-	s="#"+s;
-	n=s.size()-1;
-	m=125;
-	get_sa();
-	get_height();
-	for(int i=1;i<=n;i++) cout<<sa[i]-1<<" ";
-	cout<<"\n";
-	for(int i=1;i<=n;i++) cout<<height[i]<<" ";
-}
-
-signed main()
-{
-    fastio;
-    
-    int T;
-    T=1;
-    while(T--) solve();
-    
-    return 0;
-}
 
 //Tire树
 struct Trie {
