@@ -45,9 +45,10 @@ template<typename T> struct matrix {
 	template<typename int_t> matrix operator ^ (int_t x) {
 		assert(n == m);
 		matrix res = mul_ident(n);
+        	matrix a = *this;
 		while (x) {
-			if (x & 1) res = matrix(*this)*res;
-			*this = matrix(*this)*matrix(*this);
+			if (x & 1) res = a * res;
+			a = a * a;
 			x>>=1;
 		}
 		return res;
