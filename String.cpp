@@ -53,6 +53,74 @@ for(int i=2,l,r=0;i<s.size();i++){
 	if(i+z[i]-1>r) r=i+z[i]-1,l=i;
 }
 
+//后缀自动机(SAM)
+
+struct SAM{
+	struct Node{
+		int len,link;
+		int ch[26];
+	}tr[N];
+	int tot,la;
+	int f[N];
+	
+	void init(int n){
+		tot=0,la=0;
+		tr[la]={0,-1};
+		for(int i=0;i<=n*2;i++){
+			for(int j=0;j<26;j++) tr[i].ch[j]=0;
+			tr[i].len=0;
+			tr[i].link=-1;
+		}
+	}
+	void extend(int c){
+		int p=la,cur=la=++tot;
+		tr[cur].len=tr[p].len+1;
+		
+		f[cur]=1;
+		
+		while(p!=-1 and !tr[p].ch[c]) tr[p].ch[c]=cur,p=tr[p].link;
+		if(p==-1) tr[cur].link=0;
+		else{
+			int q=tr[p].ch[c];
+			if(tr[q].len==tr[p].len+1) tr[cur].link=q;
+			else{
+				int nq=++tot;
+				tr[nq]=tr[q],tr[nq].len=tr[p].len+1;
+				while(p!=-1 and tr[p].ch[c]==q) tr[p].ch[c]=nq,p=tr[p].link;
+				tr[q].link=tr[cur].link=nq;
+			}
+		}
+	}
+	
+	int h[N],e[N],ne[N],idx;
+	
+	void add(int a,int b){
+		e[idx]=b,ne[idx]=h[a],h[a]=idx++;
+	}
+	
+	void get_fail(){
+		for(int i=0;i<=tot;i++) h[i]=-1;
+		idx=0;
+		for(int i=1;i<=tot;i++) {
+			int a=i,b=tr[i].link;
+			add(b,a);
+		}
+	}
+	
+	long long res=0;
+	
+	void dfs(int u,int fa){
+		for(int i=h[u];~i;i=ne[i]){
+			int j=e[i];
+			if(j==fa) continue;
+			dfs(j,u);
+			f[u]+=f[j];
+		}
+		if(f[u]>1) res=max(res,(long long)f[u]*tr[u].len);
+	}
+	
+}sam;
+
 //后缀数组（SA）
 template<size_t size>
 struct SuffixArray {

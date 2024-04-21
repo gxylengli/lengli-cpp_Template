@@ -341,6 +341,39 @@ signed main()
     return 0;
 }
 
+//高斯消元求线性方程组
+
+int gauss(vector<vector<double>> &q){
+	int n=q.size();
+	assert(n==q[0].size()-1);
+    int c,r;
+    for(c=0,r=0;c<n;c++){
+        int t=r;
+        for(int i=r;i<n;i++)
+           if(fabs(q[i][c])>fabs(q[t][c])) t=i;
+        if(fabs(q[t][c])<eps) continue;
+        for(int i=c;i<=n;i++) swap(q[t][i],q[r][i]);
+        for(int i=n;i>=c;i--) q[r][i]/=q[r][c];
+        for(int i=r+1;i<n;i++)
+            if(fabs(q[i][c])>eps)
+               for(int j=n;j>=c;j--)
+                  q[i][j]-=q[r][j]*q[i][c];      
+        r++;
+    }
+    if(r<n){
+        for(int i=r;i<n;i++)
+           if(fabs(q[i][n])>eps)
+              return 2;
+        return 1;
+    }
+    for(int i=n-1;i>=0;i--)
+       for(int j=i+1;j<n;j++)
+          q[i][n]-=q[i][j]*q[j][n];
+    
+    return 0;
+}
+
+
 //扩展欧几里得(ax+by==gcd(a,b))
 namespace Exgcd{//通解x=x0+b/d,y=y0-a/d
 	i128 x,y,a,b,d;
