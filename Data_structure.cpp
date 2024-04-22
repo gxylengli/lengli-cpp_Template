@@ -91,6 +91,39 @@ struct BIT{
 	
 }tr;
 
+//动态二维前缀和
+
+struct presum_dynamic{
+    int n;
+	vector<vector<int>> a;
+	void init(int nn){
+        n=nn;a.clear();
+		a.resize(n+2,vector<int> (n+2,0));
+	}
+	void updata(int x,int y,int d){
+		for(int i=x;i<=n;i+=(i&-i)){
+			for(int j=y;j<=n;j+=(j&-j)){
+				a[i][j]+=d;
+			}
+		}
+	}
+	int query(int x, int y){
+		int res = 0;
+		for(int i=x;i;i-=(i&-i)){
+			for(int j=y;j;j-=(j&-j)){
+				res+=a[i][j];
+			}
+		}
+		return res;
+	}
+	void add(int a,int b,int c,int d,int k){
+		updata(a,b,k);
+		updata(a,d+1,-k);
+		updata(c+1,b,-k);
+		updata(c+1,d+1,k);
+	}
+}tr;
+
 //珂朵莉树
 struct Node
 {
