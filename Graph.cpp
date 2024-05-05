@@ -191,173 +191,75 @@ struct LCA{
 }tr;
 
 //树链剖分，修改路径，修改子树
-#include <bits/stdc++.h>
-#define fastio             \
-  ios::sync_with_stdio(0); \
-  cin.tie(0);              \
-  cout.tie(0)
-#pragma GCC optimize(2)
-#define endl '\n'
-//#define x first
-//#define y second
 
-using namespace std;
-typedef pair<int, int> PII;
-typedef long long LL;
-
-const int N = 100010;
-
-int n, m;
-int a[N];
-vector<int> eg[N];
-int dep[N], son[N], fa[N], sz[N];
-int dfn[N], cnt, w[N], id[N], top[N];
-
-void dfs1(int u, int f, int d) {
-  dep[u] = d;
-  sz[u] = 1;
-  fa[u] = f;
-  for (auto x : eg[u]) {
-    if (x == f) continue;
-    dfs1(x, u, d + 1);
-    sz[u] += sz[x];
-    if (sz[x] > sz[son[u]]) son[u] = x;
-  }
-}
-void dfs2(int u, int f) {
-  dfn[u] = ++cnt, w[cnt] = a[u];
-  top[u] = f;
-  if (!son[u]) return;
-  dfs2(son[u], f);
-  for (auto x : eg[u]) {
-    if (x == fa[u] or x == son[u]) continue;
-    dfs2(x, x);
-  }
-}
-
-struct Node {
-  int l, r;
-  LL sum, add;
-} tr[N * 4];
-void pushup(Node &u, Node &l, Node &r) { u.sum = l.sum + r.sum; }
-void pushup(int u) { pushup(tr[u], tr[u << 1], tr[u << 1 | 1]); }
-void build(int u, int l, int r) {
-  tr[u] = {l, r, 0, 0};
-  if (l == r)
-    tr[u] = {l, r, w[l], 0};
-  else {
-    int mid = (l + r) / 2;
-    build(u << 1, l, mid);
-    build(u << 1 | 1, mid + 1, r);
-    pushup(u);
-  }
-}
-void pushdown(int u) {
-  if (tr[u].add) {
-    tr[u << 1].sum += (tr[u << 1].r - tr[u << 1].l + 1) * tr[u].add,
-        tr[u << 1].add += tr[u].add;
-    tr[u << 1 | 1].sum += (tr[u << 1 | 1].r - tr[u << 1 | 1].l + 1) * tr[u].add,
-        tr[u << 1 | 1].add += tr[u].add;
-    tr[u].add = 0;
-  }
-}
-void modify(int u, int l, int r, int d) {
-  if (tr[u].l >= l and tr[u].r <= r) {
-    tr[u].sum += (tr[u].r - tr[u].l + 1) * d;
-    tr[u].add += d;
-    return;
-  }
-  pushdown(u);
-  int mid = (tr[u].l + tr[u].r) / 2;
-  if (l <= mid) modify(u << 1, l, r, d);
-  if (r > mid) modify(u << 1 | 1, l, r, d);
-  pushup(u);
-}
-Node query(int u, int l, int r) {
-  if (tr[u].l >= l and tr[u].r <= r) return tr[u];
-  pushdown(u);
-  int mid = (tr[u].r + tr[u].l) / 2;
-  if (l > mid)
-    return query(u << 1 | 1, l, r);
-  else if (r <= mid)
-    return query(u << 1, l, r);
-  else {
-    Node ll = query(u << 1, l, r), rr = query(u << 1 | 1, l, r);
-    Node res;
-    pushup(res, ll, rr);
-    return res;
-  }
-}
-
-void modify_tree(int u, int k) { modify(1, dfn[u], dfn[u] + sz[u] - 1, k); }
-LL query_tree(int u) { return query(1, dfn[u], dfn[u] + sz[u] - 1).sum; }
-void modify_path(int u, int v, int k) {
-  while (top[u] != top[v]) {
-    if (dep[top[u]] < dep[top[v]]) swap(u, v);
-    modify(1, dfn[top[u]], dfn[u], k);
-    u = fa[top[u]];
-  }
-  if (dep[u] < dep[v]) swap(u, v);
-  modify(1, dfn[v], dfn[u], k);
-}
-LL query_path(int u, int v) {
-  LL res = 0;
-  while (top[u] != top[v]) {
-    if (dep[top[u]] < dep[top[v]]) swap(u, v);
-    res += query(1, dfn[top[u]], dfn[u]).sum;
-    u = fa[top[u]];
-  }
-  if (dep[u] < dep[v]) swap(u, v);
-  res += query(1, dfn[v], dfn[u]).sum;
-  return res;
-}
-
-void solve() {
-  cin >> n;
-  for (int i = 1; i <= n; i++) cin >> a[i];
-  for (int i = 1; i < n; i++) {
-    int l, r;
-    cin >> l >> r;
-    eg[l].emplace_back(r);
-    eg[r].emplace_back(l);
-  }
-  dfs1(1, -1, 1);
-  dfs2(1, 1);
-  build(1, 1, n);
-
-  cin >> m;
-  while (m--) {
-    int x;
-    cin >> x;
-    if (x == 1) {
-      int u, v, k;
-      cin >> u >> v >> k;
-      modify_path(u, v, k);
-    } else if (x == 2) {
-      int u, k;
-      cin >> u >> k;
-      modify_tree(u, k);
-    } else if (x == 3) {
-      int u, v;
-      cin >> u >> v;
-      cout << query_path(u, v) << endl;
-    } else {
-      int u;
-      cin >> u;
-      cout << query_tree(u) << endl;
+struct HLD{
+    int n,cnt;
+    vector<int> sz,dep,top,son,fa,in,out,seq;
+    void init(int nn){
+        n=nn;cnt=0;
+        sz.clear(),dep.clear();
+        top.clear(),seq.clear();
+        son.clear(),fa.clear();
+        in.clear(),out.clear();
+        sz.resize(n+1),dep.resize(n+1);
+        top.resize(n+1),seq.resize(n+1);
+        son.resize(n+1),fa.resize(n+1);
+        in.resize(n+1),out.resize(n+1);
+    };
+    void dfs1(int u,int f,int d){
+        dep[u]=d;sz[u]=1;fa[u]=f;
+        for(auto x:eg[u]){
+            if(x==f) continue;
+            dfs1(x,u,d+1);
+            sz[u]+=sz[x];
+            if(sz[x]>sz[son[u]]) son[u]=x;
+        }
     }
-  }
-}
-
-signed main() {
-  fastio;
-
-  int T;
-  T = 1;
-  while (T--) solve();
-
-  return 0;
-}
+    void dfs2(int u,int f){
+        in[u]=++cnt,seq[in[u]]=u;a[in[u]]=w[u];
+        top[u]=f;
+        if(!son[u]) {
+            out[u]=cnt;
+            return;
+        }
+        dfs2(son[u],f);
+        for(auto x:eg[u]){
+            if(x==fa[u] or x==son[u]) continue;
+            dfs2(x,x);
+        }
+        out[u]=cnt;
+    }
+    int lca(int u,int v){
+        while(top[u]!=top[v]){
+            if(dep[top[u]]<dep[top[v]]) v=fa[top[v]];
+            else u=fa[top[u]];
+        }
+        return dep[u]<dep[v] ? u : v;
+    }
+    int dist(int u,int v){
+        return dep[u]+dep[v]-2*dep[lca(u,v)];
+    }
+    vector<array<int,2>> get_path(int u,int v,int is_edge=0){
+        vector<array<int,2>> res;
+        while(top[u]!=top[v]){
+            if(dep[top[u]]<dep[top[v]]) swap(u,v);
+            res.push_back({in[top[u]],in[u]});
+            u=fa[top[u]];
+        }
+        if(dep[u]>dep[v]) swap(u,v);
+        if(is_edge and u==v) return res;
+        res.push_back({in[u]+is_edge,in[v]});
+        return res;
+    }
+    vector<array<int,2>> get_tree(int u,int is_edge=0){
+    	if(is_edge and in[u]==out[u]) assert(0);
+        return {{in[u]+is_edge,out[u]}};
+    }
+    void build(int root){
+        dfs1(root,0,1);
+        dfs2(root,root);
+    }
+}hld;
 
 //最大流:节点编号(1-n)
 

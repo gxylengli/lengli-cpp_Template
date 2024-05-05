@@ -46,11 +46,19 @@ vector<int> KMP(string a,string b){
 
 //Z函数（从i开始的后缀与原串最长公共前缀）
 
-z[1]=s.size()-1;
-for(int i=2,l,r=0;i<s.size();i++){
-	if(i<=r) z[i]=min(z[i-l+1],r-i+1);
-	while(z[i]+i<s.size() and s[z[i]+1]==s[z[i]+i]) z[i]++;
-	if(i+z[i]-1>r) r=i+z[i]-1,l=i;
+vector<int> z_function(string s){
+	int n = (int)s.size();
+	vector<int> z(n);
+	for (int i = 1, l = 0, r = 0; i < n; ++i) {
+	if (i <= r && z[i - l] < r - i + 1) {
+	  z[i] = z[i - l];
+	} else {
+	  z[i] = max(0, r - i + 1);
+	  while (i + z[i] < n && s[z[i]] == s[i + z[i]]) ++z[i];
+	}
+	if (i + z[i] - 1 > r) l = i, r = i + z[i] - 1;
+	}
+	return z;
 }
 
 //后缀自动机(SAM)
