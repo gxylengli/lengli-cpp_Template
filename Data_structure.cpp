@@ -170,6 +170,22 @@ struct presum_dynamic{
     }
 };
 
+//笛卡尔树(max/min,子树连续)
+
+struct Descar_tree{
+	stack<int> stk;
+	vector<array<int,2>> tr;
+	void build(vector<int> &a,int n){
+		tr.resize(n+1);
+		for(int i=1;i<=n;i++){
+			while(stk.size() and a[stk.top()]>a[i]) {
+				tr[i][0]=stk.top(),stk.pop();
+			}
+			if(stk.size()) tr[stk.top()][1]=i;
+			stk.push(i);
+		}
+	}
+}tr;
 
 //珂朵莉树
 struct Node
