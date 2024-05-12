@@ -46,6 +46,63 @@ void dijkstra2(int u) {
   }
 }
 
+//点分治处理树上路径相关计数
+
+bool st[N];
+int get_size(int u,int f){
+	if(st[u]) return 0;
+	int sz=1;
+	for(auto &[x,w]:eg[u]){
+		if(x==f) continue;
+		sz+=get_size(x,u);
+	}
+	return sz;
+}
+
+int getwc(int u,int f,int cnt,int &root){
+	if(st[u]) return 0;
+	int sz=1,ma=0;
+	for(auto &[c,w]:eg[u]){
+		if(c==f) continue;
+		int t=getwc(c,u,cnt,root);
+		sz+=t;
+		ma=max(t,ma);
+	}
+	ma=max(ma,cnt-sz);
+	if(ma<=cnt/2) root=u;
+	return sz;
+}
+
+void dfs(int u,int f){
+	if(st[u]) return;
+	getwc(u,0,get_size(u,0),u);
+	st[u]=1;
+	int idx=0;
+
+    int cnt[2]={0};
+
+	for(auto &[x,w]:eg[u]){
+		if(st[x] or x==f) continue;
+        int q[2]={0};
+		function<void(int,int,int)> get_dist=[&](int uu,int ff,int dis){
+			if(st[uu]) return;
+            q[dis]++;
+			for(auto &[xx,ww]:eg[uu]){
+				if(xx==ff) continue;
+				get_dist(xx,uu,(dis+ww)&1);
+			}
+		};
+		get_dist(x,u,w&1);
+        res+=q[1];
+        res+=q[1]*cnt[0]+cnt[1]*q[0];
+        cnt[1]+=q[1],cnt[0]+=q[0];
+	}
+	for(auto &[x,w]:eg[u]){
+		if(x==f) continue;
+		dfs(x,u);
+	}
+}
+
 //匈牙利
 
 #include <algorithm>
@@ -723,3 +780,5 @@ struct virtual_tree{
 
 	}
 }vtr;
+
+
