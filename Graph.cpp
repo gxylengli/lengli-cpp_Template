@@ -206,6 +206,24 @@ int main() {
     cout << res;
 }
 
+//kruskal重构树
+
+int tr[N*2],root;
+void kruskal_tree(){
+	sort(eg,eg+cnt);
+	for(int i=0;i<N*2;i++) p[i]=i;
+	memset(h,-1,sizeof h);idx=0;
+	for(int i=0;i<cnt;i++){
+		int a=find(eg[i].a),b=find(eg[i].b);
+		if(a==b) continue;
+		root++;
+		tr[root]=eg[i].h;
+		merge(a,root);
+		merge(b,root);
+		add(root,a,0);add(root,b,0);
+	}
+}
+
 //倍增LCA（最近公共祖先）
 
 struct LCA{
