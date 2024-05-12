@@ -22,3 +22,23 @@ vector<pair<int,int>> merge_segment(vector<pair<int,int>> q){
     if(l!=-1) p.push_back({l,r});
     return p;
 }
+
+//动态合并树的直径
+struct Diameter{
+    int x,y;
+    Diameter(){};
+    Diameter(int x,int y):x(x),y(y){};
+    friend Diameter operator + (Diameter a,Diameter b){
+        int ma=0,rx=-1,ry=-1;
+        for(auto l:{a.x,a.y,b.x,b.y}){
+            for(auto r:{a.x,a.y,b.x,b.y}){ 
+                int d=hld.dist(l,r);
+                if(d>ma){
+                    ma=d;
+                    rx=l,ry=r;
+                }
+            }
+        }
+        return Diameter(rx,ry);
+    }
+};

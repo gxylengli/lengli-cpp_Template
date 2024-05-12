@@ -103,108 +103,29 @@ void dfs(int u,int f){
 	}
 }
 
-//匈牙利
+//kruskal最小生成树
 
-#include <algorithm>
-#include <cstring>
-#include <iostream>
-
-using namespace std;
-
-const int N = 510, M = 100010;
-
-int n1, n2, m;
-int h[N], e[M], ne[M], idx;
-int match[N];
-bool st[N];
-
-bool find(int x) {
-  for (int i = h[x]; i != -1; i = ne[i]) {
-    int j = e[i];
-    if (!st[j]) {
-      st[j] = true;
-      if (match[j] == 0 || find(match[j])) {
-        match[j] = x;
-        return true;
-      }
-    }
-  }
-  return false;
-}
-void add(int a, int b) { e[idx] = b, ne[idx] = h[a], h[a] = idx++; }
-
-int main() {
-  cin >> n1 >> n2 >> m;
-  memset(h, -1, sizeof h);
-  while (m--) {
-    int a, b;
-    cin >> a >> b;
-    add(a, b);
-  }
-  int res = 0;
-  for (int i = 1; i <= n1; i++) {
-    memset(st, false, sizeof st);
-    if (find(i)) res++;
-  }
-
-  cout << res;
-
-  return 0;
-}
-
-//最小生成树（kruskal）
-
-#include <algorithm>
-#include <iostream>
-
-using namespace std;
-
-const int N = 200010;
-
-int n, m;
-int p[N];
-
-struct Edge {
-  int a, b, w;
-
-  bool operator<(const Edge &x) const { return w < x.w; }
-} edges[N];
-
-int find(int x) {
-  if (p[x] != x) p[x] = find(p[x]);
-  return p[x];
-}
-
-int main() {
-  cin >> n >> m;
-  for (int i = 0; i < m; i++) {
-    int a, b, w;
-    cin >> a >> b >> w;
-    edges[i] = {a, b, w};
-  }
-
-  sort(edges, edges + m);
-
-  for (int i = 1; i <= n; i++) p[i] = i;
-
-  int res = 0, cnt = 0;
-
-  for (int i = 0; i < m; i++) {
-    int a = edges[i].a, b = edges[i].b, w = edges[i].w;
-
-    a = find(a), b = find(b);
-
-    if (a != b) {
-      p[a] = b;
-      cnt++;
-      res += w;
-    }
-  }
-  if (cnt < n - 1)
-    cout << "impossible";
-  else
-    cout << res;
-}
+struct kurskal{
+	vector<vector<array<int,2>>> g;
+	int cnt,sum;
+	
+	void build(int n,vector<array<int,3>> edge){
+		g.clear();g.resize(n+1);
+		cnt=0,sum=0;
+		sort(edge.begin(),edge.end(),[&](auto l,auto r){
+			return l[2]<r[2];
+		});
+		DSU dsu(n);
+		for(auto [u,v,w]:edge){
+			if(dsu.same(u,v)) continue;
+			sum+=w;
+			dsu.merge(u,v);
+			g[u].pb({v,w});
+			g[v].pb({u,w});
+		}
+		cnt=dsu.size(1);
+	}
+}kt;
 
 //kruskal重构树
 
