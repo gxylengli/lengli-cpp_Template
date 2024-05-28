@@ -12,7 +12,7 @@ struct ST{
 		}
 	}
 	int query(int l,int r){
-		int k=log(r-l+1)/log(2);
+		int k=__lg(r-l+1);
 		return max(f[l][k],f[r-(1<<k)+1][k]);
 	}
 }st;
@@ -175,13 +175,15 @@ struct presum_dynamic{
 struct Descar_tree{
 	stack<int> stk;
 	vector<array<int,2>> tr;
-	void build(vector<int> &a,int n){
+	int root=-1;
+	void build(){
 		tr.resize(n+1);
 		for(int i=1;i<=n;i++){
 			while(stk.size() and a[stk.top()]>a[i]) {
 				tr[i][0]=stk.top(),stk.pop();
 			}
 			if(stk.size()) tr[stk.top()][1]=i;
+			else root=i;
 			stk.push(i);
 		}
 	}

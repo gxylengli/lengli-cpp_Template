@@ -191,8 +191,9 @@ struct LCA{
 struct HLD{
     int n,cnt;
     vector<int> sz,dep,top,son,fa,in,out,seq;
-    void init(int nn){
-        n=nn;cnt=0;
+    vector<vector<int>> g;
+    void init(int nn,vector<vector<int>> &eg,int root){
+        n=nn;cnt=0;g=eg;
         sz.clear(),dep.clear();
         top.clear(),seq.clear();
         son.clear(),fa.clear();
@@ -201,27 +202,31 @@ struct HLD{
         top.resize(n+1),seq.resize(n+1);
         son.resize(n+1),fa.resize(n+1);
         in.resize(n+1),out.resize(n+1);
+        
+        dep[root] = 1;
+        top[root] = root;
+        dfs1(root);
+        dfs2(root);
     };
-    void dfs1(int u,int f,int d){
-        dep[u]=d;sz[u]=1;fa[u]=f;
-        for(auto x:eg[u]){
-            if(x==f) continue;
-            dfs1(x,u,d+1);
-            sz[u]+=sz[x];
-            if(sz[x]>sz[son[u]]) son[u]=x;
+    void dfs1(int u){
+        if (fa[u]) g[u].erase(find(g[u].begin(),g[u].end(),fa[u]));
+        sz[u]=1;
+        for(auto &j:g[u]){
+            fa[j]=u;
+            dep[j]=dep[u]+1;
+            dfs1(j);
+            sz[u]+=sz[j];
+            if (sz[j]>sz[g[u][0]])
+                swap(j,g[u][0]);
         }
     }
-    void dfs2(int u,int f){
-        in[u]=++cnt,seq[in[u]]=u;a[in[u]]=w[u];
-        top[u]=f;
-        if(!son[u]) {
-            out[u]=cnt;
-            return;
-        }
-        dfs2(son[u],f);
-        for(auto x:eg[u]){
-            if(x==fa[u] or x==son[u]) continue;
-            dfs2(x,x);
+    void dfs2(int u){
+        in[u]=++cnt;
+        seq[in[u]]=u;
+        //do something
+        for (auto j : g[u]){
+            top[j]=(j == g[u][0] ? top[u] : j);
+            dfs2(j);
         }
         out[u]=cnt;
     }
@@ -250,10 +255,6 @@ struct HLD{
     vector<array<int,2>> get_tree(int u,int is_edge=0){
     	if(is_edge and in[u]==out[u]) assert(0);
         return {{in[u]+is_edge,out[u]}};
-    }
-    void build(int root){
-        dfs1(root,0,1);
-        dfs2(root,root);
     }
 }hld;
 
