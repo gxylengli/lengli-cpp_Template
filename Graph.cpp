@@ -721,4 +721,69 @@ struct virtual_tree{
 	}
 }vtr;
 
+//欧拉回路
 
+struct Euler_path{
+	int S,T;
+	bool check_graph(){
+		vector<int> l,r;
+		for(int i=1;i<=n;i++){
+			if(rd[i]==cd[i]) continue;
+			if(rd[i]==cd[i]+1) r.pb(i);
+			else if(cd[i]==rd[i]+1) l.pb(i);
+			else return 0;
+		}
+		if(l.empty() and r.empty()) S=1,T=2;
+		else if(l.size()==1 and r.size()==1) S=l[0],T=r[0];
+		else return 0;
+		return 1;
+	};
+	
+	vector<int> check_and_get_ugraph(vector<array<int,2>> &edge){
+		vector<vector<array<int,2>>> g(n+2);
+		vector<int> d(n+2,0),pt;
+		int len=edge.size();
+		for(int i=0;i<len;i++){
+			auto [u,v]=edge[i];
+			g[u].pb({v,i});
+			g[v].pb({u,i});
+			d[v]++,d[u]++;
+		}
+		
+		for(int i=1;i<=n;i++) if(d[i]&1) pt.pb(i);
+		if(pt.empty()) S=1;
+		else if(pt.size()==2) S=pt[1];
+		else return {};
+		
+		vector<int> st(len+2),res;
+		function<void(int)> dfs=[&](int u){
+			while(g[u].size()){
+				auto [v,id]=g[u].back();
+				g[u].pop_back();
+				if(!st[id]){
+					st[id]=1;
+					dfs(v);
+				}
+			}
+			res.pb(u);
+		};
+		dfs(S);
+		reverse(all(res));
+		return res;
+	};
+	
+	vector<int> get_graph(){
+		vector<int> res;
+		function<void(int)> dfs=[&](int u){
+			while(eg[u].size()){
+				auto v=eg[u].back();
+				eg[u].pop_back();
+				dfs(v);
+			}
+			res.pb(u);
+		};
+		dfs(S);
+		reverse(all(res));
+		return res;
+	};
+}ep;
