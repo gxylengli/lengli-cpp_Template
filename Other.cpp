@@ -49,4 +49,15 @@ unordered_map<int, int> mp;
 mp.reserve(1024);
 mp.max_load_factor(0.25);
 
-//待定
+//矩阵旋转
+
+std::vector<std::vector<int>> rotate(std::vector<std::vector<int>> &grid){
+    int n=grid.size(),m=grid[0].size();
+    std::vector<std::vector<int>> res(m,std::vector<int> (n));
+    for(int i=0,jj=n-1;i<n;i++,jj--){
+        for(int j=0,ii=0;j<m;j++,ii++){
+            res[ii][jj]=grid[i][j];
+        }
+    }
+    return res;
+};
