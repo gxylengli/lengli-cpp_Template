@@ -234,30 +234,30 @@ SuffixArray<N> SA;
 
 //Tire树
 struct Trie {
-  int nex[N * 32][2], idx;
-  int cnt[N * 32];
-  void insert(int x, int k) {
-    int p = 0;
-    for (int i = 31; i >= 0; i--) {
-      int c = (x >> i) & 1;
-      if (!nex[p][c]) nex[p][c] = ++idx;
-      p = nex[p][c];
-      cnt[p] += k;
+    int nex[N * 32][2], idx;
+    int cnt[N * 32];
+    void insert(int x, int k) {
+        int p = 0;
+        for (int i = 31; i >= 0; i--) {
+            int c = (x >> i) & 1;
+            if (!nex[p][c]) nex[p][c] = ++idx;
+            p = nex[p][c];
+            cnt[p] += k;
+        }
     }
-  }
- 
-  int find(int x) {
-    int p = 0;
-    int res = 0;
-    for (int i = 31; i >= 0; i--) {
-      int c = (x >> i) & 1;
-      if (nex[p][c ^ 1] and cnt[nex[p][c ^ 1]]) {
-        res += (1 << i);
-        p = nex[p][c ^ 1];
-      } else p = nex[p][c];
+    
+    int find(int x) {
+        int p = 0;
+        int res = 0;
+        for (int i = 31; i >= 0; i--) {
+	        int c = (x >> i) & 1;
+	        if (nex[p][c ^ 1] and cnt[nex[p][c ^ 1]]) {
+	            res += (1 << i);
+	            p = nex[p][c ^ 1];
+	        } else p = nex[p][c];
+        }
+        return res;
     }
-    return res;
-  }
 } tr;
 
 //Trie 指针版

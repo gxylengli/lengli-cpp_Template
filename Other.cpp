@@ -43,6 +43,31 @@ struct Diameter{
     }
 };
 
+//树的直径
+
+int get_tree_diameter(int n,vector<vector<int>>& eg){
+    for(auto x:edge){
+        int u=x[0],v=x[1];
+        u++,v++;
+        eg[u].push_back(v);
+        eg[v].push_back(u);
+    }
+    std::vector<int> d(n+2,0);
+    int c=0;
+    auto dfs=[&](auto self,int u, int fa)->void{
+        for(auto v:eg[u]) {
+            if(v==fa) continue;
+            d[v]=d[u]+1;
+            if(d[v]>d[c]) c=v;
+            self(self,v,u);
+        }
+    };
+    dfs(dfs,1,0);
+    d[c]=0;
+    dfs(dfs,c,0);
+    return d[c]; 
+}
+
 //unordered_map防止被卡
 
 unordered_map<int, int> mp;
