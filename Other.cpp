@@ -45,13 +45,7 @@ struct Diameter{
 
 //树的直径
 
-int get_tree_diameter(int n,vector<vector<int>>& eg){
-    for(auto x:edge){
-        int u=x[0],v=x[1];
-        u++,v++;
-        eg[u].push_back(v);
-        eg[v].push_back(u);
-    }
+int get_tree_diameter(int n,std::vector<std::vector<int>>& eg){
     std::vector<int> d(n+2,0);
     int c=0;
     auto dfs=[&](auto self,int u, int fa)->void{

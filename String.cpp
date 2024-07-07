@@ -190,8 +190,7 @@ struct SuffixArray {
         for (int i = 1; i < sigma; i++) cb[i] = cb[i - 1] + b[i];
         for (int i = len - 1; i >= 0; i--) if (sa[i] > 0 && t[sa[i] - 1]) sa[--cb[s[sa[i] - 1]]] = sa[i] - 1;
     }
- 
-    //len要字符串长度+1!
+
     template<class T>
     inline void sais(T s, int *sa, const int len, bool *t, int *b, int *b1, const int sigma) {
         int i, j, x, p = -1, cnt = 0, sz = 0, *cb = b + sigma;
@@ -214,7 +213,7 @@ struct SuffixArray {
         for (i = 0; i < sz; i++) b2[i] = b1[sa[i]];
         sort(s, sa, len, sigma, sz, t, b, cb, b2);
     }
- 
+ 	//len要字符串长度+1!
     template<class T>
     inline void getHeight(T s, int n) {//字符串与字符串长度下标0~(n-1),height数组下标1~n
         for (int i = 1; i <= n; i++) rk[sa[i]] = i;
