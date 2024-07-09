@@ -80,3 +80,22 @@ std::vector<std::vector<int>> rotate(std::vector<std::vector<int>> &grid){
     }
     return res;
 };
+
+//手写哈希表
+
+class Hash {
+    private:
+        int keys[N];
+        int values[N];
+    public:
+        Hash() { memset(values, 0, sizeof(values)); }
+        int& operator[](int n) {
+            int idx = (n % N + N) % N, cnt = 1;
+            while (keys[idx] != n and values[idx] != 0) {
+                idx = (idx + cnt * cnt) % N;
+                cnt += 1;
+            }
+            keys[idx] = n;
+            return values[idx];
+        }
+}la;
