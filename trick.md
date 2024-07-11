@@ -1,0 +1,1 @@
+AC自动机fail指针跳转只考虑有效的字符串的截止位置;后缀数组匹配(二分或拼接);字符串哈希[LC周赛405,T4](https://leetcode.cn/problems/construct-string-with-minimum-cost/description/)
