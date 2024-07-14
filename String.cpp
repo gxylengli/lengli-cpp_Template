@@ -47,39 +47,58 @@ vector<int> KMP(string a,string b){
 //AC自动机
 
 struct ACAM{
-	int tr[N][2],idx;
-	int cnt[N],ne[N];
-	 
-	void insert(string s,int k){
-	    int p=0;
-	    for(auto x:s){
-	        int t=x-'0';
-	        if(!tr[p][t]) tr[p][t]=++idx;
-	        p=tr[p][t];
-	    }
-	    cnt[p]+=k;
-	}
-	 
-	void get_fail(){
-	    queue<int> q;
-	    for(int i=0;i<2;i++){
-	        if(tr[0][i]) q.push(tr[0][i]);
-	    }
-	    while(q.size()){
-	        auto t=q.front();
-	        q.pop();
-	        for(int i=0;i<2;i++){
-	            int j=tr[t][i];
-	            if(!j) tr[t][i]=tr[ne[t]][i];
-	            else{
-	                ne[j]=tr[ne[t]][i];
-	                q.push(j);
-	            }
-	        }
-	        cnt[t]+=cnt[ne[t]];
-	    }
-	}
-};
+    int tr[N][26],idx;
+    int cnt[N],ne[N];
+     
+    void insert(std::string s,int i){
+        int p=0;
+        for(auto x:s){
+            int t=x-'a';
+            if(!tr[p][t]) tr[p][t]=++idx;
+            p=tr[p][t];
+        }
+        id[i]=p;
+    }
+     
+    void get_fail(){
+        std::queue<int> q;
+        for(int i=0;i<26;i++){
+            if(tr[0][i]) q.push(tr[0][i]);
+        }
+        while(q.size()){
+            auto t=q.front();
+            q.pop();
+            for(int i=0;i<26;i++){
+                int j=tr[t][i];
+                if(!j) tr[t][i]=tr[ne[t]][i];
+                else{
+                    ne[j]=tr[ne[t]][i];
+                    q.push(j);
+                }
+            }
+        }
+    }
+
+    std::vector<std::vector<int>> eg;
+
+    void build_tree(){
+        eg.clear();
+        eg.resize(idx+2);
+        for(int i=1;i<=idx;i++){
+            int l=i,r=ne[i];
+            eg[l].pb(r);
+            eg[r].pb(l);
+        }
+    }
+    void dfs(int u,int fa){
+        for(auto x:eg[u]){
+            if(x==fa) continue;
+            dfs(x,u);
+            //do something
+        }
+    }
+}acam;
+
 
 //Z函数（从i开始的后缀与原串最长公共前缀）
 
