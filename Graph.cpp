@@ -1,9 +1,9 @@
 //最短路dijkstra
 
-vector<int> dijkstra(int S){
-	vector<int> dist(n+1,-1);
-	vector<bool> st(n+1,0);
-	priority_queue<array<int,2>,vector<array<int,2>>,greater<array<int,2>>> q;
+std::vector<int> dijkstra(int S){
+	std::vector<int> dist(n+1,-1);
+	std::vector<bool> st(n+1,0);
+	std::priority_queue<std::array<int,2>,std::vector<std::array<int,2>>,std::greater<std::array<int,2>>> q;
 	q.push({0,S});dist[S]=0;
 	while(q.size()){
 		auto t=q.top();
