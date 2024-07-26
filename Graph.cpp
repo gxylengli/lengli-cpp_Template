@@ -411,15 +411,15 @@ namespace dinic{
 struct E_DCC{
 	int n,cnt,cnt_edge;
 	int dfn[N], low[N];
-	vector<pair<int, int>> e[N];
-	vector<vector<int>> ans;
-	stack<int> st;
-	vector<array<int,2>> bridge;
+	std::vector<std::pair<int, int>> e[N];
+	std::vector<std::vector<int>> ans;
+	std::stack<int> st;
+	std::vector<std::array<int,2>> bridge;
     int is_bridge[N];
 	
 	void init(int nn){
 		n=nn,cnt_edge=cnt=0;
-		st=stack<int>();
+		st=std::stack<int>();
 		ans.clear();bridge.clear();
 		for(int i=1;i<=n;i++) {
 			e[i].clear();
@@ -430,8 +430,8 @@ struct E_DCC{
 	
 	void add(int u,int v){
 		cnt_edge++;
-		e[u].push_back(make_pair(v, cnt_edge<<1));
-		e[v].push_back(make_pair(u, cnt_edge<<1|1));
+		e[u].push_back(std::make_pair(v, cnt_edge<<1));
+		e[v].push_back(std::make_pair(u, cnt_edge<<1|1));
 	}
 	
 	void dfs(int x, int las){
@@ -441,16 +441,16 @@ struct E_DCC{
 			if (i.second == (las ^ 1)) continue;
 			if (!dfn[i.first]){
 				dfs(i.first, i.second);
-				low[x] = min(low[x], low[i.first]);
+				low[x] = std::min(low[x], low[i.first]);
 				if(low[i.first]>dfn[x]){
                     bridge.push_back({x,i.first});
                     is_bridge[x]=1;
                     is_bridge[i.first]=1;
                 }
-			}else low[x] = min(low[x], dfn[i.first]);
+			}else low[x] = std::min(low[x], dfn[i.first]);
 		}
 		if (dfn[x] == low[x]){
-			vector<int> vec;
+			std::vector<int> vec;
 			vec.push_back(x);
 			while (st.top() != x){
 				vec.push_back(st.top());
