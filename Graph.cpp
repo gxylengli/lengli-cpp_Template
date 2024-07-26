@@ -190,9 +190,9 @@ struct LCA{
 
 struct HLD{
     int n,cnt;
-    vector<int> sz,dep,top,son,fa,in,out,seq;
-    vector<vector<int>> g;
-    void init(int nn,vector<vector<int>> &eg,int root){
+    std::vector<int> sz,dep,top,son,fa,in,out,seq;
+    std::vector<std::vector<int>> g;
+    void init(int nn,std::vector<std::vector<int>> &eg,int root){
         n=nn;cnt=0;g=eg;
         sz.clear(),dep.clear();
         top.clear(),seq.clear();
@@ -217,12 +217,13 @@ struct HLD{
             dfs1(j);
             sz[u]+=sz[j];
             if (sz[j]>sz[g[u][0]])
-                swap(j,g[u][0]);
+                std::swap(j,g[u][0]);
         }
     }
     void dfs2(int u){
         in[u]=++cnt;
         seq[in[u]]=u;
+        a[in[u]]=w[u];
         //do something
         for (auto j : g[u]){
             top[j]=(j == g[u][0] ? top[u] : j);
@@ -240,19 +241,19 @@ struct HLD{
     int dist(int u,int v){
         return dep[u]+dep[v]-2*dep[lca(u,v)];
     }
-    vector<array<int,2>> get_path(int u,int v,int is_edge=0){
-        vector<array<int,2>> res;
+    std::vector<std::array<int,2>> get_path(int u,int v,int is_edge=0){
+        std::vector<std::array<int,2>> res;
         while(top[u]!=top[v]){
-            if(dep[top[u]]<dep[top[v]]) swap(u,v);
+            if(dep[top[u]]<dep[top[v]]) std::swap(u,v);
             res.push_back({in[top[u]],in[u]});
             u=fa[top[u]];
         }
-        if(dep[u]>dep[v]) swap(u,v);
+        if(dep[u]>dep[v]) std::swap(u,v);
         if(is_edge and u==v) return res;
         res.push_back({in[u]+is_edge,in[v]});
         return res;
     }
-    vector<array<int,2>> get_tree(int u,int is_edge=0){
+    std::vector<std::array<int,2>> get_tree(int u,int is_edge=0){
     	if(is_edge and in[u]==out[u]) assert(0);
         return {{in[u]+is_edge,out[u]}};
     }
