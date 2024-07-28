@@ -1,1 +1,13 @@
 AC自动机fail指针跳转只考虑有效的字符串的截止位置;后缀数组匹配(二分或拼接);字符串哈希[LC周赛405,T4](https://leetcode.cn/problems/construct-string-with-minimum-cost/description/)
+子集状压dp:abc321-G
+二叉树性质，树上层间暴力：abc321-E
+单调栈模拟：找右侧第一个比当前数大的数
+倍增：处理树上简单路径上的计数等问题
+题目限制：保证总点数不超过1e5等方式降低题目难度：cf242-C
+xor_hash:异或哈希，cf1418-G，abc238-G，cf1746-F
+有趣性质：x+y=(x&y)+(x|y)
+点双连通分量构建圆方树：abc318-G
+矩阵满足结合律不满足交换律的性质处理相邻两个数消除问题：8thCCPCfinal-D
+奇偶最短路:cc106-FIZZBUZZ2309
+二进制高维前缀和，FWT：蓝桥杯12.9强者赛T3
+线段树维护字符串哈希：abc331-F
