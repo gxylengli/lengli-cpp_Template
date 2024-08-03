@@ -125,17 +125,17 @@ struct presum_dynamic{
 
 template<class T>
 struct presum_dynamic{
-    vector<vector<T>> c1, c2, c3, c4;
+    std::vector<std::vector<T>> c1, c2, c3, c4;
     int szx,szy;
     presum_dynamic() {}
     presum_dynamic(int n,int m){init(n, m);}
     void init(int n, int m) {
         szx=n;szy=m;
     	c1.clear(),c2.clear(),c3.clear(),c4.clear();
-        c1.resize(n+2,vector<T> (m+2,0));
-        c2.resize(n+2,vector<T> (m+2,0));
-        c3.resize(n+2,vector<T> (m+2,0));
-        c4.resize(n+2,vector<T> (m+2,0));
+        c1.resize(n+2,std::vector<T> (m+2,0));
+        c2.resize(n+2,std::vector<T> (m+2,0));
+        c3.resize(n+2,std::vector<T> (m+2,0));
+        c4.resize(n+2,std::vector<T> (m+2,0));
     }
     void modify(int x, int y, T s) {
         for(int i=x;i<=szx;i+=(i&-i)){
