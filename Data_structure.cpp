@@ -19,12 +19,12 @@ struct ST{
 
 //并查集
 
-struct DSU{//集合加减DSU
+struct DSU{
     std::vector<int> p, sz,add;
     DSU(int n): p(n), sz(n, 1),add(n,0){
         std::iota(p.begin(), p.end(), 0);
     }
-    int find(int x){//如果使用add，那么不能路径压缩！
+    int find(int x){
         return x == p[x] ? x : p[x]=find(p[x]);
     }
     int sum(int x){
@@ -37,7 +37,7 @@ struct DSU{//集合加减DSU
         x = find(x);
         y = find(y);
         if (x == y) return 0;
-        if(size(x) < size(y)) swap(x,y);
+        if(size(x) < size(y)) std::swap(x,y);
         sz[x] += sz[y];
         p[y] = x;
         add[y]-=add[x];

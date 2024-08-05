@@ -106,10 +106,10 @@ void dfs(int u,int f){
 //kruskal最小生成树
 
 struct kurskal{
-	vector<vector<array<int,2>>> g;
+	std::vector<std::vector<std::array<int,2>>> g;
 	int cnt,sum;
 	
-	void build(int n,vector<array<int,3>> edge){
+	void build(int n,std::vector<std::array<int,3>> edge){
 		g.clear();g.resize(n+1);
 		cnt=0,sum=0;
 		sort(edge.begin(),edge.end(),[&](auto l,auto r){
