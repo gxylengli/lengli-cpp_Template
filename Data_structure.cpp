@@ -74,19 +74,21 @@ struct DSU_Weight{//带权DSU
 
 //树状数组
 struct BIT{
-	int n=N-1;
-	int a[N];
-	int lowbit(int x){return x&-x;}
-	void add(int x,int c) {for(int i=x;i<=n;i+=lowbit(i)) a[i]+=c;}
-	void init(){
-		
-	};
-	int sum(int x){
-		LL res=0;
-		for(int i=x;i;i-=lowbit(i)) res+=a[i];
-		return res;
-	}
-}tr;
+    int mn;
+    std::vector<int> a;
+    BIT(){};
+    BIT(int n){
+        a.clear(),a.resize(n+2);
+        mn=n;
+    };
+    int lowbit(int x){return x&-x;}
+    void add(int x,int c) {for(int i=x;i<=mn;i+=lowbit(i)) a[i]+=c;}
+    long long sum(int x){
+        long long res=0;
+        for(int i=x;i;i-=lowbit(i)) res+=a[i];
+        return res;
+    }
+};
 
 //动态二维前缀和单点查询
 
