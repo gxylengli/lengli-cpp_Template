@@ -21,29 +21,54 @@ std::vector<int> dijkstra(int S){
 }
 
 
-//次短路dijkstra
+//可重复走边非严格次短路dijkstra
 
-void dijkstra2(int u) {
-  for (int i = 0; i < N; i++) dis1[i] = dis2[i] = 1e18;
-  priority_queue<PII, vector<PII>, greater<PII>> q;
-  q.push({0, u});
-  dis1[u] = 0;
-  while (!q.empty()) {
-    auto t = q.top();
-    q.pop();
-    if (dis2[t.second] < t.first) continue;
-    for (auto [w, j] : eg[t.second]) {
-      int nw = t.first + w;
-      if (nw < dis1[j]) {
-        swap(dis1[j], nw);
-        q.push({dis1[j], j});
-      }
-      if (nw < dis2[j]) {
-        swap(dis2[j], nw);
-        q.push({dis2[j], j});
-      }
+void dijkstra2(int u){
+    for (int i=0; i<N;i++) dis1[i]=dis2[i]=1e18;
+    std::priority_queue<std::array<int,2>,std::vector<std::array<int,2>>,std::greater<>> q;
+    q.push({0,u});
+    dis1[u]=0;
+    while (!q.empty()){
+        auto t = q.top();
+        q.pop();
+        if (dis2[t[1]]<t[0]) continue;
+        for (auto [j,w]:eg[t[1]]){
+            int nw = t[0] + w;
+            if(nw<dis1[j]){
+                std::swap(dis1[j],nw);
+                q.push({dis1[j], j});
+            }
+            if(nw<dis2[j]) {
+                std::swap(dis2[j],nw);
+                q.push({dis2[j],j});
+            }
+        }
     }
-  }
+}
+
+//可重复走边严格次短路
+
+void dijkstra2(int u){
+    for (int i=0; i<N;i++) dis1[i]=dis2[i]=1e18;
+    std::priority_queue<std::array<int,2>,std::vector<std::array<int,2>>,std::greater<>> q;
+    q.push({0,u});
+    dis1[u]=0;
+    while (!q.empty()){
+        auto t = q.top();
+        q.pop();
+        if (dis2[t[1]]<t[0]) continue;
+        for (auto [j,w]:eg[t[1]]){
+            int nw = t[0] + w;
+            if(nw<dis1[j]){
+                std::swap(dis1[j],nw);
+                q.push({dis1[j], j});
+            }
+            if(nw<dis2[j] and dis1[j]!=nw) {
+                std::swap(dis2[j],nw);
+                q.push({dis2[j],j});
+            }
+        }
+    }
 }
 
 //点分治处理树上路径相关计数
