@@ -242,6 +242,71 @@ struct Linear_basis{
 	}
 }lb;
 
+//质数检验
+
+namespace miller{
+	using u32=uint32_t;
+	using u64=uint64_t;
+	using u128=__uint128_t;
+	constexpr u64 get_nr(u64 M){
+	    u64 IV=2-M;
+	    for(int i=0;i<5;++i){
+	        IV*=2-M*IV;
+	    }
+	    return IV;
+	}
+	constexpr u64 mul(u64 x,u64 y,u64 IV,u64 M){
+	    auto t=u128(x)*y;
+	    u64 lo=t,hi=t>>64,res=(hi+M)-u64((u128(lo*IV)*M)>>64);
+	    return res;
+	}
+	constexpr bool isprime(u64 x){
+	    if(x<64){return (u64(1)<<x)&0x28208a20a08a28ac;}
+	    if(x%2==0){return false;}
+	    u64 d=x-1,IV=get_nr(x),R=(-x)%x,R2=(-u128(x))%x,nR=x-R;
+	    int k=__builtin_ctzll(d);
+	    d>>=k;
+	    auto mr3=[&](u64 t1,u64 t2,u64 t3){
+	        u64 r1=R,r2=R,r3=R;
+	        t1=mul(t1,R2,IV,x),t2=mul(t2,R2,IV,x),t3=mul(t3,R2,IV,x);
+	        for(u64 b=d;b;b>>=1){
+	            if(b&1){
+	                r1=mul(r1,t1,IV,x),r2=mul(r2,t2,IV,x),r3=mul(r3,t3,IV,x);
+	            }
+	            t1=mul(t1,t1,IV,x),t2=mul(t2,t2,IV,x),t3=mul(t3,t3,IV,x);
+	        }
+	        r1=std::min(r1,r1-x),r2=std::min(r2,r2-x),r3=std::min(r3,r3-x);
+	        int res1=(r1==R)|(r1==nR),res2=(r2==R)|(r2==nR),res3=(r3==R)|(r3==nR);
+	        for(int j=0;j<k-1;++j){
+	            r1=mul(r1,r1,IV,x),r2=mul(r2,r2,IV,x),r3=mul(r3,r3,IV,x);
+	            res1|=(std::min(r1,r1-x)==nR),res2|=(std::min(r2,r2-x)==nR),res3|=(std::min(r3,r3-x)==nR);
+	        }
+	        return res1&res2&res3;
+	    };
+	    auto mr4=[&](u64 t1,u64 t2,u64 t3,u64 t4){
+	        u64 r1=R,r2=R,r3=R,r4=R;
+	        t1=mul(t1,R2,IV,x),t2=mul(t2,R2,IV,x),t3=mul(t3,R2,IV,x),t4=mul(t4,R2,IV,x);
+	        for(u64 b=d;b;b>>=1){
+	            if(b&1){
+	                r1=mul(r1,t1,IV,x),r2=mul(r2,t2,IV,x),r3=mul(r3,t3,IV,x),r4=mul(r4,t4,IV,x);
+	            }
+	            t1=mul(t1,t1,IV,x),t2=mul(t2,t2,IV,x),t3=mul(t3,t3,IV,x),t4=mul(t4,t4,IV,x);
+	        }
+	        r1=std::min(r1,r1-x),r2=std::min(r2,r2-x),r3=std::min(r3,r3-x),r4=std::min(r4,r4-x);
+	        int res1=(r1==R)|(r1==nR),res2=(r2==R)|(r2==nR),res3=(r3==R)|(r3==nR),res4=(r4==R)|(r4==nR);
+	        for(int j=0;j<k-1;++j){
+	            r1=mul(r1,r1,IV,x),r2=mul(r2,r2,IV,x),r3=mul(r3,r3,IV,x),r4=mul(r4,r4,IV,x);
+	            res1|=(std::min(r1,r1-x)==nR),res2|=(std::min(r2,r2-x)==nR),res3|=(std::min(r3,r3-x)==nR),res4|=(std::min(r4,r4-x)==nR);
+	        }
+	        return res1&res2&res3&res4;
+	    };
+	    if(x<(u64(1)<<32)){
+	        return mr3(2,7,61);
+	    }
+	    return mr3(2,325,9375)&&mr4(28178,450775,9780504,1795265022);
+	}
+}
+
 
 //超大质因数分解
 /*
