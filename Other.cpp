@@ -100,4 +100,11 @@ class Hash {
         }
 }la;
 
+//名次树，可以查排名的set
+
+#include <bits/extc++.h>
+using namespace __gnu_cxx;
+using namespace __gnu_pbds;
+using kth_tree = __gnu_pbds::tree<std::array<int,2>, null_type, std::less<>, rb_tree_tag, tree_order_statistics_node_update>;
+
 //loading

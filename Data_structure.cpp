@@ -409,136 +409,83 @@ int query(int p,int q,int k,int l,int r){
 
 //fhq-treap(平衡树)
 
-#include <bits/stdc++.h>
-#define fastio ios::sync_with_stdio(0);cin.tie(0)
-#define endl '\n'
-using namespace std;
-const int N=100010;
-int root,idx;
-int x,y,z;
-struct Node
-{
-    int l,r;
-    int key,val;
-    int size;
-}tr[N];
+struct FHQ_treap{
+	#define Maxn 100010
+	#define ls tree[p].pl
+	#define rs tree[p].pr
+	private:
+		int All=0,root=0;
+		struct NODE { int pl,pr,siz,cnt,rnd; int val; };
+		NODE tree[Maxn];
+		inline int Dot() { return ++All; }
+		inline int New(int Val){
+			int p=Dot();
+			tree[p].rnd=rand(),tree[p].val=Val;
+			tree[p].siz=tree[p].cnt=1;
+			tree[p].pl=tree[p].pr=0;
+			return p;
+		}
+		inline void pushdown(int p) { p--; }
+		inline void pushup(int p) { 
+		    tree[p].siz=tree[ls].siz+tree[rs].siz+tree[p].cnt; 
+		}
+		void split(int p,int k,int &x,int &y){
+			if(!p) { x=y=0; return; }
+			pushdown(p);
+			if(tree[p].val<=k) x=p,split(rs,k,rs,y);
+			else y=p,split(ls,k,x,ls);
+			pushup(p);
+		}
+		int merge(int x,int y){
+			if(!x || !y) return x+y;
+			if(tree[x].rnd<tree[y].rnd){
+				pushdown(x),tree[x].pr=merge(tree[x].pr,y),pushup(x);
+				return x;
+			}else{
+				pushdown(y),tree[y].pl=merge(x,tree[y].pl),pushup(y);
+				return y;
+			}
+		}
+		inline int kth(int p,int Rank){
+			while(p){
+				if(tree[ls].siz>=Rank) p=ls;
+				else if(tree[ls].siz+tree[p].cnt>=Rank) return p;
+				else Rank-=tree[ls].siz+tree[p].cnt,p=rs;
+			}
+			return p;
+		}
+		int x,y,z;
+	public:
+		void Insert(int Val){
+		    split(root,Val,x,y),root=merge(merge(x,New(Val)),y); 
+		}
+		void Delete_one(int Val){
+			split(root,Val,x,z),split(x,Val-1,x,y);
+			y=merge(tree[y].pl,tree[y].pr);
+			root=merge(merge(x,y),z);
+		}
+		int Rank_to_Value(int Rank)
+			{ return tree[kth(root,Rank)].val; }
+		int Value_to_Rank(int Value){
+			split(root,Value-1,x,y);
+			int ret=tree[x].siz+1;
+			root=merge(x,y);
+			return ret;
+		}
+		int Findpre(int Value){
+			split(root,Value-1,x,y);
+			int ret=tree[kth(x,tree[x].siz)].val;
+			root=merge(x,y);
+			return ret;
+		}
+		int Findnex(int Value){
+			split(root,Value,x,y);
+			int ret=tree[kth(y,1)].val;
+			root=merge(x,y);
+			return ret;
+		}
+}tr;
 
-void pushup(int u)
-{
-    tr[u].size=tr[tr[u].l].size+tr[tr[u].r].size+1;
-}
-
-int getnode(int c)
-{
-    tr[++idx].key=c;
-    tr[idx].val=rand();
-    tr[idx].size=1;
-    return idx;
-}
-
-void split(int u,int key,int &x,int &y)
-{
-    if(!u)
-    {
-        x=y=0;
-        return;
-    }
-    else
-    {
-        if(tr[u].key<=key) x=u,split(tr[u].r,key,tr[u].r,y);
-        else y=u,split(tr[u].l,key,x,tr[u].l);
-    }
-    pushup(u);
-}
-
-int merge(int a,int b)
-{
-    if(a==0 and b==0) return 0;
-    if(tr[a].val > tr[b].val)
-    {
-        tr[a].r=merge(tr[a].r,b);
-        pushup(a);
-        return a;
-    }
-    else 
-    {
-        tr[b].l=merge(a,tr[b].l);
-        pushup(b);
-        return b;
-    }
-}
-
-void insert(int c)
-{
-    split(root,c-1,x,y);
-    root=merge(merge(x,getnode(c)),y);
-}
-
-void dele(int c)
-{
-    split(root,c,x,z);
-    split(x,c-1,x,y);
-    if(y) y=merge(tr[y].l,tr[y].r);
-    root=merge(merge(x,y),z);
-}
-
-int getrank(int c)
-{
-    split(root,c-1,x,y);
-    int ans=tr[x].size;
-    root=merge(x,y);
-    return ans;
-}
-
-int getnum(int c)
-{
-    int p=root;
-    while(1)
-    {
-        if(tr[tr[p].l].size+1==c) break;
-        else if(tr[tr[p].l].size+1 > c) p=tr[p].l;
-        else c=c-tr[tr[p].l].size-1,p=tr[p].r;
-    }
-    return tr[p].key;
-}
-
-int getlast(int c)
-{
-    split(root,c-1,x,y);
-    int p=x;
-    while(tr[p].r) p=tr[p].r;
-    int ans=tr[p].key;
-    root=merge(x,y);
-    return ans;
-}
-
-int getnext(int c)
-{
-    split(root,c,x,y);
-    int p=y;
-    while(tr[p].l) p=tr[p].l;
-    int ans=tr[p].key;
-    root=merge(x,y);
-    return ans;
-}
-
-signed main()
-{
-    fastio;
-    int n;
-    cin>>n;
-    for(int i=0;i<n;i++)
-    {
-        int k,x;
-        cin>>k>>x;
-        if(k==1) insert(x);
-        else if(k==2) dele(x);
-        else if(k==3) cout<<getrank(x)+1<<endl;
-        else if(k==4) cout<<getnum(x)<<endl;
-        else if(k==5) cout<<getlast(x)<<endl;
-        else cout<<getnext(x)<<endl;
-    }
-}
 
 //基础莫队
 
