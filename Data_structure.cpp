@@ -304,9 +304,9 @@ struct Segment_tree{
 //动态开点版本线段树
 
 struct Segment_tree{
-	vector<Info> info;
-	vector<Tag> tag;
-	vector<int> ls,rs;
+	std::vector<Info> info;
+	std::vector<Tag> tag;
+	std::vector<int> ls,rs;
 	int idx=-1,root;
 	
 	int getnode(int l,int r,int v){
