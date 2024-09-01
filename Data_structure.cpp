@@ -487,7 +487,7 @@ struct FHQ_treap{
 }tr;
 
 
-//基础莫队
+//莫队
 
 #include <cstring>
 #include <iostream>
