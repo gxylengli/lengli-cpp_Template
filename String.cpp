@@ -25,11 +25,11 @@ struct string_hash{
 
 //KMP
 
-vector<int> KMP(string a,string b){
+std::vector<int> KMP(std::string a,std::string b){
     int n=a.size(),m=b.size();
 	a="#"+a,b="#"+b;
-	vector<int> q(n+1,0);
-    vector<int> ne(m+1,0);
+	std::vector<int> q(n+1,0);
+    std::vector<int> ne(m+1,0);
 	for(int i=2,j=0;i<=m;i++){
 		while(j and b[j+1]!=b[i]) j=ne[j];
 		if(b[j+1]==b[i]) j++;
@@ -43,6 +43,7 @@ vector<int> KMP(string a,string b){
 	}
 	return q;
 }
+
 
 //AC自动机
 
