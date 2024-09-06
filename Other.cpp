@@ -107,4 +107,34 @@ using namespace __gnu_cxx;
 using namespace __gnu_pbds;
 using kth_tree = __gnu_pbds::tree<std::array<int,2>, null_type, std::less<>, rb_tree_tag, tree_order_statistics_node_update>;
 
+//求逆序对
+long long inversion(std::vector<long long> a,long long max_val){
+    long long res=0;
+    if(max_val<=(int)1e6){
+        BIT tr(max_val+2);
+        reverse(all(a));
+        for(auto x:a){
+            res+=tr.sum(x-1);
+            tr.add(x,1);
+        }
+    }else{
+        std::vector<int> q;
+        for(auto x:a) q.pb(x);
+        q.erase(unique(all(q)),q.end());
+        auto find=[&](int x){
+            return lower_bound(all(q),x)-q.begin()+1;
+        };
+        BIT tr(q.size()+2);
+        reverse(all(a));
+        for(auto x:a){
+            x=find(x);
+            res+=tr.sum(x-1);
+            tr.add(x,1);
+        }
+    }
+    
+    return res;
+}
+
+
 //loading
