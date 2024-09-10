@@ -291,10 +291,11 @@ struct MF {
   int vis[N];
   
   int n, S, T;
-  LL maxflow = 0;
+  int maxflow = 0;
   int dep[N], cur[N];
 
-  void init() {
+  void init(int n_,int S_,int T_) {
+    n=n_,S=S_,T=T_;
     memset(h, -1, sizeof h);
     idx = 0;
   }
@@ -305,7 +306,7 @@ struct MF {
   }
 
   bool bfs() {
-    queue<int> q;
+    std::queue<int> q;
     memset(dep, -1, sizeof dep);
     dep[S] = 0;
     q.push(S);
@@ -333,7 +334,7 @@ struct MF {
       cur[u] = i;
       int j = e[i];
       if (dep[j] == dep[u] + 1 and w[i]) {
-        int t = dfs(j, min(limit - flow, w[i]));
+        int t = dfs(j, std::min(limit - flow, w[i]));
         if (!t) dep[j] = -1;
         w[i] -= t;
         w[i ^ 1] += t;
@@ -345,7 +346,7 @@ struct MF {
 
   void dinic() {
     while (bfs()) {
-      // memcpy(cur, h, sizeof h);
+      memcpy(cur, h, sizeof h);
       maxflow += dfs(S, INF);
     }
   }
@@ -368,7 +369,7 @@ namespace dinic{
 	int dist[N],edge[M],cost[M],maxflow,mincost;
 	bool vis[N];
 	
-	inline void add(int x,int y,int z,int c,bool o=1){
+	inline void add(int x,int y,int z,int c=0,bool o=1){
 		ver[tot]=y;
 		edge[tot]=z;
 		cost[tot]=c;
@@ -379,7 +380,7 @@ namespace dinic{
 	inline bool spfa(){
 		for(int i=1;i<=n;i++) dist[i]=INF;
 		memset(vis,0,sizeof vis);
-		queue<int> q;
+		std::queue<int> q;
 		q.push(S);
 		dist[S]=0,vis[S]=1;
 		while(q.size()){
@@ -405,7 +406,7 @@ namespace dinic{
 			int y=ver[i];
 			int z=edge[i],c=cost[i];
 			if(!z or (dist[y]!=dist[x]+c) or vis[y]) continue;
-			k=dfs(y,min(flow,z));
+			k=dfs(y,std::min(flow,z));
 			if(!k) dist[y]=INF;
 			edge[i]-=k;
 			edge[i^1]+=k;
