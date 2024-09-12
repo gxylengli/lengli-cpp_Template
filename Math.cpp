@@ -189,8 +189,8 @@ Matrix pow(Matrix a,long long b){
 
 struct Linear_basis{
 	#define int long long
-	vector<int> p;
-	vector<int> b;
+	std::vector<int> p;
+	std::vector<int> b;
 	int cnt=0;
 	bool flag=0;//have zero ? 1 : 0
 	void insert(int x){
@@ -204,7 +204,7 @@ struct Linear_basis{
 		}
 		flag=1;
 	}
-	void init(vector<int> &a){
+	void init(std::vector<int> &a){
 		p.clear();p.resize(63,0);
 		flag=0;cnt=0;b.clear();
 		for(auto x:a) insert(x);
@@ -222,7 +222,7 @@ struct Linear_basis{
 	int query_ma(){
 		int res=0;
 		for(int i=62;i>=0;i--)
-			res=max(res,res^p[i]);
+			res=std::max(res,res^p[i]);
 		return res;
 	}
 	int query(int k){//k>=1
