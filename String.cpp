@@ -1,27 +1,35 @@
 //字符串哈希
 struct string_hash{
-    int b=13331, P=1000000007, p[N], rh[N],h[N],len;
-    vector<int> sd={163227661,217636919,290182597,386910137,515880193,1000000007};
-    int inline get(int l, int r){
-        return (h[r] - (LL)h[l - 1] * p[r - l + 1] % P + P) % P;
+    std::vector<int> p,rh,h;
+    int b=13331,P=1000000007,len;
+    string_hash(){};
+    string_hash(int max_len){
+        p.clear(),h.clear(),rh.clear();
+        p.resize(max_len+1,0);
+        h.resize(max_len+1,0);
+        rh.resize(max_len+1,0);
+        P=get_sd();p[0]=1;
+        for(int i=1;i<=max_len;i++) p[i]=(long long)p[i-1]*b%P;
+    };
+    int get_sd(){
+        int x=rd()%1000000000+800000000;
+        while(!miller::isprime(x)) x++;
+        return x;
     }
-    void inline get_sd(){
-        int len=sd.size();
-        int t=rand()%len;
-        P=sd[t];
-    }
-    void inline build(int n,string s) {
-        p[0] = 1,len=n;
-        for(int i = 1; i <= n; i++){
-            p[i] = (LL)p[i - 1] * b % P;
-            h[i] = ((LL)h[i - 1] * b + s[i-1]) % P;
-        }
-        for(int i=1;i<=n;i++) rh[i]=((LL)rh[i - 1] * b + s[n-i]) % P;
+    int get(int l,int r){
+        return (h[r]-(long long)h[l-1]*p[r-l+1]%P+P)%P;
     }
     bool isprs(int l,int r){
-        return (h[r]-(LL)h[l-1]*p[r-l+1]%P+P)%P==(rh[len-l+1]-(LL)rh[len-r]*p[r-l+1]%P+P)%P;
+        return (h[r]-(long long)h[l-1]*p[r-l+1]%P+P)%P==(rh[len-l+1]-(long long)rh[len-r]*p[r-l+1]%P+P)%P;
     }
-}tr;
+    void build(std::string s) {
+        len=s.size();
+        for(int i=1;i<=len;i++){
+            h[i]=((long long)h[i-1]*b+s[i-1])%P;
+            rh[i]=((long long)rh[i-1]*b+s[len-i])%P;
+        }
+    }
+};
 
 //KMP
 
