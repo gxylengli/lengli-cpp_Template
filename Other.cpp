@@ -137,4 +137,15 @@ long long inversion(std::vector<long long> a,long long max_val){
 }
 
 
+//unorderd_set/map,手写哈希
+
+namespace std {
+    template<>
+    struct hash<std::array<int,2>> {
+        size_t operator()(const std::array<int,2>& s) const {
+            return hash<int>()(s[0]) + hash<int>()(s[1]);
+        }
+    };
+}
+
 //loading

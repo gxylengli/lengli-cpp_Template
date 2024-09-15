@@ -48,19 +48,25 @@ std::vector<int> KMP(std::string a,std::string b){
 //AC自动机
 
 struct ACAM{
-    int tr[N][26],idx;
-    int cnt[N],ne[N];
-     
-    void insert(std::string s,int i){
+    std::vector<int> ne;
+    std::vector<std::vector<int>> tr;
+    int idx;
+    ACAM(){};
+    ACAM(int sum_len,int alphabets){
+        tr.resize(sum_len+1,std::vector<int> (alphabets+1,0));
+        ne.resize((sum_len+1)*(alphabets+1));
+        idx=0;
+    };
+    
+    void insert(std::string s){
         int p=0;
         for(auto x:s){
             int t=x-'a';
             if(!tr[p][t]) tr[p][t]=++idx;
             p=tr[p][t];
         }
-        id[i]=p;
     }
-     
+    
     void get_fail(){
         std::queue<int> q;
         for(int i=0;i<26;i++){
@@ -87,10 +93,11 @@ struct ACAM{
         eg.resize(idx+2);
         for(int i=1;i<=idx;i++){
             int l=i,r=ne[i];
-            eg[l].pb(r);
-            eg[r].pb(l);
+            eg[l].push_back(r);
+            eg[r].push_back(l);
         }
     }
+
     void dfs(int u,int fa){
         for(auto x:eg[u]){
             if(x==fa) continue;
@@ -98,7 +105,7 @@ struct ACAM{
             //do something
         }
     }
-}acam;
+};
 
 
 //Z函数（从i开始的后缀与原串最长公共前缀）
