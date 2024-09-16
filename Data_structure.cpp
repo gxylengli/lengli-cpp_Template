@@ -175,21 +175,41 @@ struct presum_dynamic{
 //笛卡尔树(max/min,子树连续)
 
 struct Descar_tree{
-	stack<int> stk;
-	vector<array<int,2>> tr;
+	std::stack<int> stk;
+	std::vector<std::array<int,2>> tr;
+    std::vector<int> L,R;
 	int root=-1;
-	void build(){
-		tr.resize(n+1);
+    Descar_tree(){};
+    Descar_tree(int n,std::vector<int> &a){
+        L.clear(),R.clear();
+        L.resize(n+2),R.resize(n+2);
+        tr.resize(n+2);root=-1;
+        stk=std::stack<int>();
 		for(int i=1;i<=n;i++){
-			while(stk.size() and a[stk.top()]>a[i]) {
+			while(stk.size() and a[stk.top()]<a[i]) {
 				tr[i][0]=stk.top(),stk.pop();
 			}
 			if(stk.size()) tr[stk.top()][1]=i;
 			else root=i;
 			stk.push(i);
 		}
-	}
-}tr;
+        dfs(root,-1);
+    };
+    void dfs(int u,int fa){
+        auto &t=tr[u];
+        L[u]=R[u]=u;
+        if(t[0]){
+            dfs(t[0],u);
+            L[u]=std::min(L[u],L[t[0]]);
+            R[u]=std::max(R[u],R[t[0]]);
+        }
+        if(t[1]){
+            dfs(t[1],u);
+            L[u]=std::min(L[u],L[t[1]]);
+            R[u]=std::max(R[u],R[t[1]]);
+        }
+    };
+};
 
 //珂朵莉树
 struct Node
