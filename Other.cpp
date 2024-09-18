@@ -148,4 +148,105 @@ namespace std {
     };
 }
 
+//找拓扑序中的位置唯一的点
+//https://www.luogu.com.cn/problem/P11073
+
+int get_only_topsort_point(int n,std::vector<std::array<int,2>> edge){
+    std::vector<std::vector<int>> eg(n+2);
+    std::vector<int> rd(n+2,0);
+    for(auto [l,r]:edge) eg[l].pb(r),rd[r]++;
+
+    std::vector<int> seq;
+    std::queue<int> q;
+    for(int i=1;i<=n;i++) if(!rd[i]) q.push(i);
+    while(q.size()){
+        auto t=q.front();
+        q.pop();
+        seq.pb(t);
+        for(auto x:eg[t]){
+            rd[x]--;
+            if(!rd[x]) q.push(x);
+        }
+    }
+
+    std::vector<std::vector<int>> st(2,std::vector<int> (n+2,0));
+    {
+        rd.clear(),rd.resize(n+2,0);
+        reverse(all(seq));
+        int cnt=0;
+        for(auto u:seq){
+            for(int v:eg[u]){
+                if(!rd[v]) cnt--;
+                rd[v]++;
+            }
+            cnt++;
+            if(cnt==1) st[0][u]=1;
+        }
+    }
+    {
+        eg.clear(),eg.resize(n+2);
+        rd.clear(),rd.resize(n+2,0);
+        for(auto [r,l]:edge) eg[l].pb(r);
+        int cnt=0;
+        reverse(all(seq));
+        for(auto u:seq){
+            for(int v:eg[u]){
+                if(!rd[v]) cnt--;
+                rd[v]++;
+            }
+            cnt++;
+            if(cnt==1) st[1][u]=1;
+        }
+    }
+    
+    int res=0;
+    for(int i=1;i<=n;i++){
+        if(st[0][i] and st[1][i]) res++;
+    }
+    return res;
+}
+
+//找拓扑序中的位置唯一的点（时间戳做法）
+
+int get_only_topsort_point(int n,std::vector<std::array<int,2>> edge){
+    std::vector<std::vector<int>> eg(n+2);
+    std::vector<int> rd(n+2,0);
+    for(auto [l,r]:edge) {
+        assert(l!=r);
+        if(l>r) std::swap(l,r);
+        eg[l].pb(r),rd[r]++;
+    }
+
+    std::vector<int> min_time(n+2,0);
+    int tot=0;
+    for(int i=1;i<=n;i++){
+        for(int j:eg[i]){
+            min_time[j]=max(min_time[j],min_time[i]+1);
+            tot=max(tot,min_time[j]);
+        }
+    }
+    std::vector<int> max_time(n+2,tot);
+    for(int i=n;i>=1;i--){
+        for(int j:eg[i]){
+            max_time[i]=min(max_time[i],max_time[j]-1);
+        }
+    }
+    std::vector<int> b(n+2);
+    for(int i=1;i<=n;i++) b[min_time[i]]++,b[max_time[i]+1]--;
+    for(int i=1;i<=n;i++) b[i]+=b[i-1];
+
+    std::vector<int> res(n+2,1);
+    for (int i=1;i<=n;i++) {
+        bool feas=true;
+        if(min_time[i]!=max_time[i]) feas=false;
+        int t=min_time[i];
+        if(b[t]>1) feas=false;
+        res[i]=feas;
+    }
+
+    int ans=0;
+    for(int i=1;i<=n;i++) if(res[i]) ans++;
+    return ans;
+}
+
 //loading
