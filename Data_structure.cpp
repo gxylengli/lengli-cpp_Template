@@ -1,21 +1,28 @@
 //ST表
 
 struct ST{
-	int a[N];
-	int f[N][M];
-	void init(){
-		for(int len=0;len<M;len++){
+	std::vector<std::vector<int>> f;
+    int n=0,m=0,flag=0;
+    ST(){};
+	ST(int nn,std::vector<int> &a,bool t=1){
+        flag=t,n=nn,m=std::__lg(nn)+1;
+        f.resize(n+1,std::vector<int> (m+1));
+		for(int len=0;len<m;len++){
 			for(int i=1;i+(1<<len)-1<=n;i++){
 				if(!len) f[i][len]=a[i];
-				else f[i][len]=max(f[i][len-1],f[i+(1<<len-1)][len-1]);
+				else {
+                    if(flag) f[i][len]=std::max(f[i][len-1],f[i+(1<<len-1)][len-1]);
+                    else f[i][len]=std::min(f[i][len-1],f[i+(1<<len-1)][len-1]);
+                }
 			}
 		}
 	}
 	int query(int l,int r){
-		int k=__lg(r-l+1);
-		return max(f[l][k],f[r-(1<<k)+1][k]);
+		int k=std::__lg(r-l+1);
+		if(flag) return std::max(f[l][k],f[r-(1<<k)+1][k]);
+        return std::min(f[l][k],f[r-(1<<k)+1][k]);
 	}
-}st;
+};
 
 //并查集
 
