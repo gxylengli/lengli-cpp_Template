@@ -173,7 +173,7 @@ void kruskal_tree(){
 //倍增LCA（最近公共祖先）
 
 struct LCA{
-    vector<int> dep;
+    std::vector<int> dep;
     vector<vector<int>> eg,fa;
     int m;
     void init(int n){
