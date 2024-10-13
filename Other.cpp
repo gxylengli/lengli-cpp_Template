@@ -251,11 +251,6 @@ int get_only_topsort_point(int n,std::vector<std::array<int,2>> edge){
 
 //毫秒级随机数
 
-std::mt19937 rd;
-void get_seed(){
-    struct _timeb l;
-    _ftime(&l);
-    rd=std::mt19937(l.millitm);
-}
+std::mt19937 rd(std::chrono::system_clock::now().time_since_epoch().count());
 
 //loading
