@@ -12,7 +12,7 @@ struct string_hash{
         for(int i=1;i<=max_len;i++) p[i]=(long long)p[i-1]*b%P;
     };
     int get_sd(){
-        int x=rd()%1000000000+800000000;
+        int x=rd()%1800000000;
         while(!miller::isprime(x)) x++;
         return x;
     }
