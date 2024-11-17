@@ -533,12 +533,12 @@ struct E_DCC{
 // Tarjan求点双连通分量V_DCC
 
 struct V_DCC{
-    vector<int> eg[N];
+    std::vector<int> eg[N];
     int dfn[N],low[N],timespace;
     int stk[N],top;
     bool cut[N];
     int dcc_cnt,n;
-    vector<int> dcc[N];
+    std::vector<int> dcc[N];
     void init(int x){
         timespace=1;
         n=x;
@@ -560,7 +560,7 @@ struct V_DCC{
         for(auto j:eg[u]){
             if(!dfn[j]){
                 dfs(j,root);
-                low[u]=min(low[u],low[j]);
+                low[u]=std::min(low[u],low[j]);
                 if(dfn[u] <= low[j]){
                     cnt++;
                     if(u!=root or cnt > 1) cut[u]=1;
@@ -573,7 +573,7 @@ struct V_DCC{
                     dcc[dcc_cnt].push_back(u);
                 }
             }
-            else low[u]=min(low[u],dfn[j]);
+            else low[u]=std::min(low[u],dfn[j]);
         }
     }
     void tarjan(){

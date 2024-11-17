@@ -72,7 +72,7 @@ double PointDistToSegment(const Point &P,const Point &A,const Point &B){
 	Vector v1=B-A,v2=P-A,v3=P-B;
 	if(Dot(v1,v2)<0) return Length(v2);
 	if(Dot(v1,v3)>0) return Length(v3);
-	return fabs(PointDistToLine(P,A,B));
+	return std::abs(PointDistToLine(P,A,B));
 }
 
 std::vector<int> ConvexHull(std::vector<Point> &p){

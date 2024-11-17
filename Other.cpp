@@ -108,7 +108,8 @@ using namespace __gnu_pbds;
 using kth_tree = __gnu_pbds::tree<std::array<int,2>, null_type, std::less<>, rb_tree_tag, tree_order_statistics_node_update>;
 
 //求逆序对
-long long inversion(std::vector<long long> a,long long max_val){
+template<typename T>
+long long inversion(std::vector<T> a,T max_val){
     long long res=0;
     if(max_val<=(int)1e6){
         BIT tr(max_val+2);
@@ -118,7 +119,7 @@ long long inversion(std::vector<long long> a,long long max_val){
             tr.add(x,1);
         }
     }else{
-        std::vector<int> q;
+        std::vector<T> q;
         for(auto x:a) q.pb(x);
         q.erase(unique(all(q)),q.end());
         auto find=[&](int x){
@@ -132,7 +133,6 @@ long long inversion(std::vector<long long> a,long long max_val){
             tr.add(x,1);
         }
     }
-    
     return res;
 }
 
