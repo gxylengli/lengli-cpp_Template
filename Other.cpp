@@ -23,6 +23,36 @@ vector<pair<int,int>> merge_segment(vector<pair<int,int>> q){
     return p;
 }
 
+//字符串切分
+std::vector<std::string> split(std::string a,std::string b){
+	int n=a.size(),m=b.size();
+	a="#"+a,b="#"+b;
+	std::vector<int> q(n+1,0);
+    std::vector<int> ne(m+1,0);
+	for(int i=2,j=0;i<=m;i++){
+		while(j and b[j+1]!=b[i]) j=ne[j];
+		if(b[j+1]==b[i]) j++;
+		ne[i]=j;
+	}
+	std::vector<std::string> res;
+	std::string str="";
+	for(int i=1,j=0;i<=n;i++){
+		while(j and a[i]!=b[j+1]) j=ne[j];
+		if(a[i]==b[j+1]) j++;
+		str+=a[i];
+		q[i]=j;
+		if(j==m){
+			j=0;
+			str.erase(str.size()-m);
+			if(str.size()) res.pb(str);
+			str.clear();
+		}
+	}
+	if(str.size()) res.pb(str);
+	return res;
+}
+
+
 //动态合并树的直径
 struct Diameter{
     int x,y;
