@@ -283,4 +283,40 @@ int get_only_topsort_point(int n,std::vector<std::array<int,2>> edge){
 
 std::mt19937 rd(std::chrono::system_clock::now().time_since_epoch().count());
 
+//二维矩阵哈希
+
+template<typename mint>
+struct hash2D{
+    int n=0,m=0;
+    std::vector<mint> p1,p2;
+    std::vector<std::vector<mint>> h;
+    hash2D(){};
+    hash2D(std::vector<std::vector<char>> &a,mint base1,mint base2){
+        n=a.size(),m=a[0].size();
+        h.resize(n+2,std::vector<mint> (m+2,0));
+        int mx=std::max(n,m);
+        p1.resize(mx+2,1),p2.resize(mx+2,1);
+        for(int i=1;i<=mx;i++){
+            p1[i]=p1[i-1]*base1;
+            p2[i]=p2[i-1]*base2;
+        }
+        for(int i=1;i<=n;i++) {
+            for(int j=1;j<=m;j++){
+                h[i][j]=h[i][j-1]*base2;
+                h[i][j]=h[i][j]+h[i-1][j]*base1;
+                h[i][j]=h[i][j]-base2*base1*h[i-1][j-1];
+                h[i][j]=h[i][j]+a[i-1][j-1];
+            }
+        } 
+    };
+
+    mint query(int x_1,int y_1,int x_2,int y_2){
+        mint res=h[x_2][y_2];
+        res=res-h[x_1-1][y_2]*p1[x_2-x_1+1];
+        res=res-h[x_2][y_1-1]*p2[y_2-y_1+1];
+        res=res+p1[x_2-x_1+1]*h[x_1-1][y_1-1]*p2[y_2-y_1+1];
+        return res;
+    }
+};
+
 //loading

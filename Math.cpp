@@ -481,3 +481,66 @@ namespace Exgcd{//通解x=x0+b/d,y=y0-a/d
 		return 1;
 	}
 }
+
+
+//min25筛
+
+namespace min25{
+    i64 n,idx,D;
+    i64 w[N],id1[N],id2[N];
+    i64 prime[N],st[N],cnt;
+    std::vector<std::vector<Mint>> g,sum;
+
+    i64 id(i64 x){
+        if(x<=D) return id1[x];
+        return id2[n/x];
+    }
+
+    void init(i64 nn){
+        n=nn;
+        g.clear(),sum.clear();
+        idx=0,cnt=0;
+        D=std::sqrt(n);
+
+        for(i64 l=1,r;l<=n;l=r+1){
+            r=n/(n/l),w[++idx]=n/l;
+            if(w[idx]<=D) id1[w[idx]]=idx;
+            else id2[n/w[idx]]=idx;
+        }
+
+        for(i64 i=2;i<=D;i++){
+            if(!st[i]) prime[++cnt]=i;
+            for(i64 j=1;prime[j]*i<=D;j++){
+                st[i*prime[j]]=1;
+                if(i%prime[j]==0) break;
+            }
+        }
+    }
+
+    void insert(auto f,auto presum){//完全积性函数和其前缀和函数
+        std::vector<Mint> ng(idx+2),nsum(cnt+2);
+        for(int i=1;i<=idx;i++) ng[i]=presum(w[i])-f(1);
+        for(int i=1;i<=cnt;i++) nsum[i]=(nsum[i-1]+f(prime[i]));
+        for(int i=1;i<=cnt;i++){
+            for(int j=1;j<=idx and prime[i]*prime[i]<=w[j];j++){
+                ng[j]=ng[j]-f(prime[i])*(ng[id(w[j]/prime[i])]-nsum[i-1]);
+            }
+        }
+        g.pb(ng),sum.pb(nsum);
+    }
+
+    Mint jxf(i64 x){//要求的积性函数
+        return Mint(x)*x-x;
+    }
+
+    Mint S(i64 x,int j){//使用例子为 f(x)=x^2-x
+        if(prime[j]>x) return 0;
+        Mint res=(g[0][id(x)]-sum[0][j])-(g[1][id(x)]-sum[1][j]);
+        for(int i=j+1;i<=cnt and prime[i]*prime[i]<=x;i++){
+            for(i64 e=1,sp=prime[i];sp<=x;sp*=prime[i],e++){
+                res+=jxf(sp)*(S(x/sp,i)+(e>1));
+            }
+        }
+        return res;
+    }
+}
