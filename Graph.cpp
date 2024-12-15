@@ -851,3 +851,70 @@ struct Euler_path{
 		return res;
 	};
 }ep;
+
+//支配树 推荐博客: https://zerol.me/2018/10/22/dominator-tree/
+
+struct DominatorTree{
+    int n,idx;
+    std::vector<int> dfn,rev,fa,p,mn,idom,sdom;
+    std::vector<std::vector<int>> eg,reg,tr;
+
+    DominatorTree(){}
+    DominatorTree(int n,std::vector<std::array<int,2>> &Edge,int root=-1): n(n) {
+        assert(root!=-1);
+
+        dfn.resize(n+2),rev.resize(n+2);
+        fa.resize(n+2),p.resize(n+2);
+        idom.resize(n+2),sdom.resize(n+2);
+        eg.resize(n+2),reg.resize(n+2);
+        mn.resize(n+2),tr.resize(n+2);
+
+        idx=0;
+        for(int i=0;i<=n;i++){
+            p[i]=i,sdom[i]=i,mn[i]=i;
+        }
+        for(auto [u,v]:Edge) add(u,v);
+        tarjan(root);
+    };  
+    void add(int a,int b){
+        eg[a].pb(b);
+        reg[b].pb(a);
+    }
+    void dfs(int u){
+        dfn[u]=++idx;
+        rev[idx]=u;
+        for(auto x:eg[u]){
+            if(!dfn[x]){
+                fa[x]=u;
+                dfs(x);
+            }
+        }
+    }
+    int find(int x){
+        if(x==p[x]) return x;
+        int j=find(p[x]);
+        if(dfn[sdom[mn[p[x]]]]<dfn[sdom[mn[x]]]) mn[x]=mn[p[x]];
+        return p[x]=j;
+    }
+    void tarjan(int root){
+        dfs(root);
+        for(int i=n;i>1;i--){
+            int u=rev[i];
+            for(auto x:reg[u]){
+                find(x);
+                if(dfn[sdom[mn[x]]]<dfn[sdom[u]]) sdom[u]=sdom[mn[x]];
+            }
+            p[u]=fa[u];
+            tr[sdom[u]].pb(u);
+            u=fa[u];
+            for(auto x:tr[u]){
+                find(x);
+                idom[x]=(u==sdom[mn[x]]) ? u : mn[x];
+            }
+            tr[u].clear();
+        }
+        for(int i=2;i<=n;i++){
+            if(idom[rev[i]]!=sdom[rev[i]]) idom[rev[i]]=idom[idom[rev[i]]];
+        }
+    }
+};
