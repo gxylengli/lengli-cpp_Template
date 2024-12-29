@@ -80,8 +80,8 @@ namespace excrt{
 
 //线性筛质数
 
-vector<int> init_prime(int n){
-	vector<int> prime,st(n+1,0);
+std::vector<int> init_prime(int n){
+	std::vector<int> prime,st(n+1,0);
 	for(int i=2;i<=n;i++){
 		if(!st[i]) prime.push_back(i);
 		for(int j=0;prime[j]*i<=n;j++){
