@@ -174,7 +174,7 @@ void kruskal_tree(){
 
 struct LCA{
     std::vector<int> dep;
-    vector<vector<int>> eg,fa;
+    std::vector<std::vector<int>> eg,fa;
     int m;
     void init(int n){
         m=log(n)/log(2)+1;
