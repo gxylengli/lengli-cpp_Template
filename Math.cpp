@@ -50,7 +50,7 @@ namespace excrt{
 	    if (m0 < 0) m0 += b / s;
 	    return {s, m0};
 	}
-	pair<long long, long long> crt(const vector<long long>& r,const vector<long long>& m) {//a->val,m->mod
+	std::pair<long long, long long> crt(const vector<long long>& r,const vector<long long>& m) {//a->val,m->mod
 	    assert(r.size() == m.size());
 	    int n = int(r.size());
 	    long long r0 = 0, m0 = 1;
