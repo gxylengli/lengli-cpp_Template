@@ -101,7 +101,7 @@ struct BIT{
 
 struct presum_dynamic{
     int n;
-	vector<vector<int>> a;
+	std::vector<std::vector<int>> a;
 	void init(int nn){
         n=nn;a.clear();
 		a.resize(n+2,vector<int> (n+2,0));
