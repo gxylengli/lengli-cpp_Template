@@ -332,6 +332,7 @@ struct MF {
 
   void init(int n_,int S_,int T_) {
     n=n_,S=S_,T=T_;
+    maxflow=0;
     memset(h, -1, sizeof h);
     idx = 0;
   }
