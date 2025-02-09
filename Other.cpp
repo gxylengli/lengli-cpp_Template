@@ -8,7 +8,7 @@ void add(int l,int r,int a,int k){//a首项，k公差，d数组两次前缀和�
 
 //区间段合并
 
-vector<pair<int,int>> merge_segment(vector<pair<int,int>> q){
+std::vector<pair<int,int>> merge_segment(vector<pair<int,int>> q){
     vector<pair<int,int>> p;
     sort(q.begin(),q.end());
     int l=-1,r=-1;
