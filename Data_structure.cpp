@@ -56,7 +56,7 @@ struct DSU{
 };
 
 struct DSU_Weight{//带权DSU
-	vector<int> p, dist;
+	std::vector<int> p, dist;
 	DSU(int n): p(n), dist(n,0){
 		iota(p.begin(), p.end(), 0);
 	}
