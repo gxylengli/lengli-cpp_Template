@@ -523,7 +523,6 @@ struct FHQ_treap{
 
 using namespace std;
 
-const int N = 50010, M = 200010, S = 1000010;
 
 int w[N];
 int n,m,len;
