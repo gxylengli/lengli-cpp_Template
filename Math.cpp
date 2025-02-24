@@ -544,3 +544,58 @@ namespace min25{
         return res;
     }
 }
+
+
+//exlucas
+
+i64 qmi(i64 a,i64 b,i64 P){
+    i64 res=1;
+    while(b){
+        if(b&1) res=(res*a)%P;
+        a=(a*a)%P;
+        b>>=1;
+    }
+    return res;
+}
+
+i64 calc(i64 n,i64 x,i64 P){
+    if(!n) return 1;
+    i64 s=1;
+    for(i64 i=1;i<=P;i++){
+        if(i%x) s=(s*i)%P;
+    }
+    s=qmi(s,n/P,P);
+    for(i64 i=n/P*P+1;i<=n;i++)
+        if(i%x) s=i%P*s%P;
+    return s*calc(n/x,x,P)%P;
+}
+
+i64 inverse(i64 x,i64 P){
+    return qmi(x,P-2,P);
+}
+
+i64 multilucas(i64 m,i64 n,i64 x,i64 P){
+    int cnt=0;
+    for(i64 i=m;i;i/=x) cnt+=i/x;
+    for(i64 i=n;i;i/=x) cnt-=i/x;
+    for(i64 i=m-n;i;i/=x) cnt-=i/x;
+    return qmi(x,cnt,P)%P*calc(m,x,P)%P*inverse(calc(n,x,P),P)%P*inverse(calc(m-n,x,P),P)%P;
+}
+
+i64 exlucas(i64 m,i64 n,i64 P){
+    int cnt=0;
+    std::vector<i64> p,a;
+    for(i64 i=2;i*i<=P;i++){
+        if(P%i==0){
+            p.push_back(1);
+            while(P%i==0){
+                p.back()*=i;
+                P/=i;
+            }
+            a.push_back(multilucas(m,n,i,p.back()));
+        }
+    }
+    if(P>1) p.push_back(P),a.push_back(multilucas(m,n,P,P));
+    i64 res=excrt::crt(a,p).first;
+    return res;
+}
