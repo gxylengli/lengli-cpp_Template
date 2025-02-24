@@ -1,26 +1,24 @@
-//逆元预处理
-void init_inv()
-{
-	inv[1] = 1;	
-	for(int i = 2;i < N;i++) inv[i] = (M -M / i) * inv[M % i] %M;
-}
-
 //组合数（C）预处理
 
-int aa[N],bb[N];
-int inv[N];
- 
-void init(){
-	inv[1] = 1;
-	for(int i = 2;i < N;i++)  inv[i] = (M -  M / i) * inv[M % i] % M;
-	aa[0]=1,bb[0]=1;
-	for(int i=1;i<N;i++) aa[i]=(i*aa[i-1])%M;
-	for(int i=1;i<N;i++) bb[i]=(inv[i]*bb[i-1])%M;
-}
- 
-int C(int x, int y) {
-	return x < y || y < 0 ? 0 : aa[x] * bb[y] % M * bb[x - y] % M;
-}
+struct combine{
+    std::vector<int> aa,bb,inv;
+    int mx,MOD;
+    combine(){}
+    combine(int len,int M){
+        mx=len,MOD=M;
+        aa.clear(),bb.clear(),inv.clear();
+        aa.resize(len),bb.resize(len),inv.resize(len);
+        inv[1]=1;
+        for(int i=2;i<len;i++) inv[i]=(MOD-MOD/i)*inv[MOD%i]%MOD;
+        aa[0]=1,bb[0]=1;
+        for(int i=1;i<len;i++) aa[i]=(i*aa[i-1])%MOD;
+        for(int i=1;i<len;i++) bb[i]=(inv[i]*bb[i-1])%MOD;
+    }
+    int C(int x, int y) {
+        assert(x<mx and y<mx);
+        return x<y or y<0 ? 0: aa[x]*bb[y]%MOD*bb[x-y]%MOD;
+    }
+};
 
 
 //中国剩余定理excrt
