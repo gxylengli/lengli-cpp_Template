@@ -78,6 +78,40 @@ struct DSU_Weight{//带权DSU
 	}
 };
 
+//可撤销并查集
+
+struct DSU{
+    std::vector<int> p, sz;
+    DSU(int n): p(n), sz(n, 1){
+        std::iota(p.begin(), p.end(), 0);
+    }
+    int find(int x){
+        return x == p[x] ? x : find(p[x]);
+    }
+    std::vector<std::array<int,3>> tmp;
+
+    bool merge(int x, int y){
+        x = find(x);
+        y = find(y);
+        if (x == y) return 0;
+        if(size(x) < size(y)) std::swap(x,y);
+        tmp.pb({y,x,sz[x]});
+        sz[x] += sz[y];
+        p[y] = x;
+        return 1;
+    }
+    int size(int x){
+        return sz[find(x)];
+    }
+    void roll(){
+        while(tmp.size()){
+            auto [y,x,t]=tmp.back();
+            tmp.pop_back();
+            p[y]=y;
+            sz[x]=t;
+        }
+    }
+};
 
 //树状数组
 struct BIT{
