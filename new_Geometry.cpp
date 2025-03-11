@@ -41,6 +41,10 @@ double Length(const Point &a){
   	return sqrt(Dot(a, a));
 }
 
+Point Rotate(const Point &a, double rad){
+    return Point(a.x*cos(rad)-a.y*sin(rad),a.x*sin(rad)+a.y*cos(rad));
+}
+
 Point Normal(const Point &v,bool clockwise=1){
     double L=Length(v);
     if(!clockwise) return Point(-v.y/L,v.x/L);
@@ -97,6 +101,13 @@ std::vector<int> ConvexHull(std::vector<Point> &p){
     }
     res.pop_back();
     return res;
+}
+
+double PolygonArea(std::vector<Point> &p,std::vector<int> &cvx){
+    int n=cvx.size();
+    double res=0;
+    for(int i=1;i<n;i++) res+=Cross(p[cvx[i]]-p[cvx[0]],p[cvx[i+1]]-p[cvx[0]]);
+    return res/2;
 }
 
 int MaxTriangleOnConvex(std::vector<Point> p,std::vector<int> cvx){
@@ -230,4 +241,55 @@ Point TwoLineIntersection(Line a,Line b){
     Vector u=a.P-b.P;
     double t=Cross(b.v,u)/Cross(a.v,b.v);
     return a.P+a.v*t;
+}
+
+struct Circle {
+    Point P;
+    double r;
+    Circle(){};
+    Circle(Point a, double r) : P(a), r(r){};
+};
+
+double getPointdist(const Point &a,const Point &b){
+    double dx=b.x-a.x;
+    double dy=b.y-a.y;
+    double len=sqrt(dx*dx+dy*dy);
+    return len;
+}
+
+bool PointinCircle(const Point &a,const Circle &b) {
+    double len=getPointdist(a,b.P);
+    if(len<b.r) return 1;
+    else return 0;
+}
+
+Circle getCircle(const Point &a,const Point &b,const Point &c){
+    Point aa=b-a,bb=c-a;
+    aa=Rotate(aa,-pi/2);
+    bb=Rotate(bb,-pi/2);
+    Line p=Line((b+a)/2,aa);
+    Line q=Line((c+a)/2,bb);
+    Point ans=TwoLineIntersection(p,q);
+    double r=getPointdist(ans,a);
+    return Circle(ans, r);
+}
+
+Circle minCirclecover(std::vector<Point> q){
+    std::random_shuffle(q.begin(),q.end());
+    int n=q.size();
+    Circle c=Circle(q[0],0);
+    for(int i=1;i<n;i++) {
+        if(!PointinCircle(q[i],c)){
+            c=Circle(q[i],0);
+            for(int j=0;j<i;j++) {
+                if(!PointinCircle(q[j],c)){
+                    c=Circle((q[i]+q[j])/2,getPointdist(q[i],q[j])/2);
+                    for(int k=0;k<j;k++) {
+                        if(!PointinCircle(q[k],c)) c=getCircle(q[i],q[j],q[k]);
+                    }
+                }
+            }
+        }
+    }
+    return c;
 }
