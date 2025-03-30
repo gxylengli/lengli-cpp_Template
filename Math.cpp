@@ -406,7 +406,7 @@ signed main()
 
 //高斯消元求线性方程组
 
-int gauss(vector<vector<double>> &q){
+int gauss(std::vector<std::vector<double>> &q){
 	int n=q.size();
 	assert(n==q[0].size()-1);
     int c,r;
