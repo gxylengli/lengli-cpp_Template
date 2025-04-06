@@ -319,5 +319,45 @@ struct hash2D{
     }
 };
 
+//动态中位数
+template<typename T>
+struct Magic{
+    T sl,sr;
+    std::multiset<T> l,r;
+    Magic(){
+        sl=0,sr=0;
+        l.clear(),r.clear();
+    };
+    void balance(){
+        if(l.size()==r.size()) return;
+        while(r.size()>l.size()){
+            T v=*r.begin();
+            r.extract(v);sr-=v;
+            l.insert(v);sl+=v;
+        }
+        while(l.size()>r.size()+1){
+            T v=*l.rbegin();
+            l.extract(v);sl-=v;
+            r.insert(v);sr+=v;
+        }
+        return;
+    }
+    void insert(T x){
+        if(l.empty()) l.insert(x),sl+=x;
+        else if(x<=*l.rbegin()) l.insert(x),sl+=x;
+        else r.insert(x),sr+=x;
+        balance();
+    }
+    void remove(T x){
+        if(l.count(x)) l.extract(x),sl-=x;
+        else if(r.count(x)) r.extract(x),sr-=x;
+        balance();
+    }
+    T get(){
+        if(l.empty()) return -1;
+        return *l.rbegin();
+    }
+};
+
 //loading
 //
