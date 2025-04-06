@@ -114,20 +114,31 @@ struct DSU{
 };
 
 //树状数组
+template<typename T>
 struct BIT{
-    int mn;
-    std::vector<int> a;
+    int mn,LG;
+    std::vector<T> a;
     BIT(){};
     BIT(int n){
         a.clear(),a.resize(n+2);
-        mn=n;
+        mn=n;LG=std::__lg(n)+1;
     };
     int lowbit(int x){return x&-x;}
-    void add(int x,int c) {for(int i=x;i<=mn;i+=lowbit(i)) a[i]+=c;}
-    long long sum(int x){
-        long long res=0;
+    void add(int x,T c) {for(int i=x;i<=mn;i+=lowbit(i)) a[i]+=c;}
+    T sum(int x){
+        T res=0;
         for(int i=x;i;i-=lowbit(i)) res+=a[i];
         return res;
+    }
+    int getrk(T k){
+        int res=0;
+        T cnt=0;
+        for(int i=LG;i>=0;i--){
+            res+=(1<<i);
+            if(res>mn or cnt+a[res]>=k) res-=(1<<i);
+            else cnt+=a[res];
+        }
+        return res+1;
     }
 };
 
