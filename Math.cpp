@@ -92,9 +92,9 @@ std::vector<int> init_prime(int n){
 
 //线性处理欧拉函数
 
-vector<int> init_phi(int n){
-	vector<int> prime,st(n+1,0);
-	vector<int> phi(n+1,0);
+std::vector<int> init_phi(int n){
+	std::vector<int> prime,st(n+1,0);
+	std::vector<int> phi(n+1,0);
 	phi[1]=1;
 	for(int i=2;i<=n;i++){
 		if(!st[i]) prime.push_back(i),phi[i]=i-1;
