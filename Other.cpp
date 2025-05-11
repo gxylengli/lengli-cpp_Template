@@ -360,4 +360,4 @@ struct Magic{
 };
 
 //loading
-//
+////
