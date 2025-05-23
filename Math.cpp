@@ -9,14 +9,14 @@ struct combine{
         aa.clear(),bb.clear(),inv.clear();
         aa.resize(len),bb.resize(len),inv.resize(len);
         inv[1]=1;
-        for(int i=2;i<len;i++) inv[i]=(MOD-MOD/i)*inv[MOD%i]%MOD;
+        for(int i=2;i<len;i++) inv[i]=1ll*(MOD-MOD/i)*inv[MOD%i]%MOD;
         aa[0]=1,bb[0]=1;
-        for(int i=1;i<len;i++) aa[i]=(i*aa[i-1])%MOD;
-        for(int i=1;i<len;i++) bb[i]=(inv[i]*bb[i-1])%MOD;
+        for(int i=1;i<len;i++) aa[i]=(1ll*i*aa[i-1])%MOD;
+        for(int i=1;i<len;i++) bb[i]=(1ll*inv[i]*bb[i-1])%MOD;
     }
     int C(int x, int y) {
         assert(x<mx and y<mx);
-        return x<y or y<0 ? 0: aa[x]*bb[y]%MOD*bb[x-y]%MOD;
+        return x<y or y<0 ? 0: 1ll*aa[x]*bb[y]%MOD*bb[x-y]%MOD;
     }
 };
 

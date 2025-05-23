@@ -558,6 +558,60 @@ struct FHQ_treap{
 		}
 }tr;
 
+//归并树
+
+struct MergeSortTree{//idx:1~n
+    int n,m;
+    std::vector<int> a;
+    std::vector<std::vector<int>> tr;
+    MergeSortTree(){};
+    MergeSortTree(int n,std::vector<int> a):n(n),a(a){
+        m=std::__lg(n)+2;
+        tr.resize(m,std::vector<int> (n+2));
+        build(0,1,n);
+    };
+    void build(int dep,int l,int r){
+        if(l==r){
+            tr[dep][l]=a[l];
+            return;
+        }
+        int mid=(l+r)>>1;
+        build(dep+1,l,mid);
+        build(dep+1,mid+1,r);
+        int i=l,j=mid+1;
+        auto &q=tr[dep+1];
+        for(int idx=l;idx<=r;idx++){
+            if(i<=mid and j<=r){
+                if(q[i]<q[j]) tr[dep][idx]=q[i],i++;
+                else tr[dep][idx]=q[j],j++;
+            }else if(i<=mid) tr[dep][idx]=q[i],i++;
+            else tr[dep][idx]=q[j],j++;
+        }
+        return;
+    }
+
+    int query(int dep,int l,int r,int pl,int pr,int x){
+        auto &q=tr[dep];
+        if(l>=pl and r<=pr){
+            return std::lower_bound(q.begin()+l,q.begin()+r+1,x)-q.begin()-l;
+        }
+        int mid=(l+r)>>1;
+        int res=0;
+        if(pl<=mid) res+=query(dep+1,l,mid,pl,pr,x);
+        if(pr>mid) res+=query(dep+1,mid+1,r,pl,pr,x);
+        return res;
+    };
+
+    int rank(int L,int R,int k){//val l~r ?
+        int l=-1000000000,r=1000000000;
+        while(l<r){
+            int mid=(l+r)>>1;
+            if(query(0,1,n,L,R,mid)>=k) r=mid;
+            else l=mid+1;
+        }
+        return r;
+    }
+};
 
 //莫队
 
